@@ -1,0 +1,21 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <TargetFramework>netstandard2.1</TargetFramework>
+    <Nullable>enable</Nullable>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <PackageReference Include="NodaTime" Version="3.2.2" />
+    <PackageReference Include="NodaTime.Serialization.SystemTextJson" Version="1.3.0" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <EditorConfigFiles Remove="G:\Dev\Projects\MirthSystems\Projects\scheduler\src\Scheduler.Core\.editorconfig" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <None Include="G:\Dev\Projects\MirthSystems\Projects\scheduler\src\Scheduler.Core\.editorconfig" />
+  </ItemGroup>
+
+</Project>
