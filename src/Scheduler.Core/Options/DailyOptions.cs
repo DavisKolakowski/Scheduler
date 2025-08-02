@@ -5,7 +5,7 @@ namespace Scheduler.Core.Options
 
     public class DailyOptions : FrequencyOptions
     {
-        public override string GetDescription(LocalDate startDate, LocalTime startTime, LocalTime endTime, LocalDate? endDate)
+        protected internal override string GetDescription(LocalDate startDate, LocalTime startTime, LocalTime endTime, LocalDate? endDate)
         {
             var timeRange = $"{startTime:h:mm tt}-{endTime:h:mm tt}";
             var intervalText = Interval == 1 ? "daily" : $"every {Interval} days";

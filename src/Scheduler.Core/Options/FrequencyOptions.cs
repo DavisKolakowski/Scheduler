@@ -8,7 +8,7 @@ namespace Scheduler.Core.Options
     {
         public int Interval { get; set; } = 1;
 
-        public abstract string GetDescription(LocalDate startDate, LocalTime startTime, LocalTime endTime, LocalDate? endDate);
+        protected internal abstract string GetDescription(LocalDate startDate, LocalTime startTime, LocalTime endTime, LocalDate? endDate);
 
         // Protected helper methods for all frequency options to use
         protected static string GetIndexText(DayOfWeekIndex index)

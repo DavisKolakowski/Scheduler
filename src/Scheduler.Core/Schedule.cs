@@ -6,20 +6,22 @@ namespace Scheduler.Core
 
     public class Schedule
     {
+        public string Description => ToString();
         public LocalDate StartDate { get; }
         public LocalTime StartTime { get; }
-        public LocalTime EndTime { get; }    
-        public LocalDate? EndDate { get; }
+        public LocalTime EndTime { get; }
         public DateTimeZone TimeZone { get; }
+        public Duration Duration => Duration.FromTicks(EndTime.TickOfDay - StartTime.TickOfDay);
+        public LocalDate? EndDate { get; }
         public FrequencyOptions? Recurrence { get; }
 
         internal Schedule(LocalDate startDate, LocalTime startTime, LocalTime endTime, DateTimeZone timeZone, LocalDate? endDate = null, FrequencyOptions? recurrence = null)
         {
             StartDate = startDate;
             StartTime = startTime;
-            EndTime = endTime;        
-            EndDate = endDate;
+            EndTime = endTime;
             TimeZone = timeZone;
+            EndDate = endDate;
             Recurrence = recurrence;
         }
 

@@ -138,5 +138,29 @@ namespace Scheduler.UnitTests
             Assert.Equal(DayOfWeekIndex.First, monthlyOptions.WeekIndex);
             Assert.Equal(DayOfWeekType.Friday, monthlyOptions.WeekDayType);
         }
+
+        [Fact]
+        public void Schedule_Should_Have_Description_Property_That_Returns_ToString()
+        {
+            // Arrange & Act
+            var schedule = Schedule.CreateBuilder(new LocalDate(2024, 1, 15), new LocalTime(15, 0), new LocalTime(17, 0), _timeZone)
+                .Build();
+
+            // Assert
+            Assert.Equal(schedule.ToString(), schedule.Description);
+            Assert.Contains("Occurs once on January 15, 2024", schedule.Description);
+        }
+
+        [Fact]
+        public void Schedule_Should_Calculate_Duration_Correctly()
+        {
+            // Arrange & Act
+            var schedule = Schedule.CreateBuilder(new LocalDate(2024, 1, 15), new LocalTime(15, 0), new LocalTime(17, 30), _timeZone)
+                .Build();
+
+            // Assert
+            var expectedDuration = Duration.FromHours(2.5);
+            Assert.Equal(expectedDuration, schedule.Duration);
+        }
     }
 }

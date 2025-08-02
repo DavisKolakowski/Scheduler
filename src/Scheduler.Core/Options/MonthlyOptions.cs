@@ -18,7 +18,7 @@ namespace Scheduler.Core.Options
             return this;
         }
 
-        public override string GetDescription(LocalDate startDate, LocalTime startTime, LocalTime endTime, LocalDate? endDate)
+        protected internal override string GetDescription(LocalDate startDate, LocalTime startTime, LocalTime endTime, LocalDate? endDate)
         {
             var timeRange = $"{startTime:h:mm tt}-{endTime:h:mm tt}";
             var intervalText = Interval == 1 ? "monthly" : $"every {Interval} months";
