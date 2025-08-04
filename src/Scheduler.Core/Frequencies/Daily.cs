@@ -5,7 +5,7 @@ namespace Scheduler.Core.Frequencies
 {
     public class Daily : Recurring
     {
-        public override string GetScheduleDescription(LocalDate startDate, LocalTime startTime, LocalTime endTime, DateTimeZone timeZone)
+        public override string GenerateDescription(LocalDate startDate, LocalTime startTime, LocalTime endTime, DateTimeZone timeZone)
         {
             var startTimeFormatted = startTime.ToString("h:mm tt", System.Globalization.CultureInfo.InvariantCulture);
             var endTimeFormatted = endTime.ToString("h:mm tt", System.Globalization.CultureInfo.InvariantCulture);

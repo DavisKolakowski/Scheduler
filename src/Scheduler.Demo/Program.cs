@@ -43,6 +43,34 @@ internal class Program
         schedules.Add(oneTimeData);
         Console.WriteLine();
 
+        Console.WriteLine("=== ONE-TIME OVERNIGHT EXAMPLE ===");
+        var oneTimeOvernightBuilder = Schedule<OneTime>.CreateBuilder(
+            new LocalDate(2024, 8, 5),
+            new LocalTime(22, 30), // 10:30 PM
+            new LocalTime(2, 0),   // 2:00 AM (next day)
+            DateTimeZoneProviders.Tzdb["America/New_York"]
+        );
+        var oneTimeOvernightSchedule = oneTimeOvernightBuilder.Build();
+        
+        var oneTimeOvernightData = new
+        {
+            StartDate = oneTimeOvernightSchedule.StartDate.ToString("yyyy-MM-dd", System.Globalization.CultureInfo.InvariantCulture),
+            StartTime = oneTimeOvernightSchedule.StartTime.ToString("HH:mm", System.Globalization.CultureInfo.InvariantCulture),
+            EndTime = oneTimeOvernightSchedule.EndTime.ToString("HH:mm", System.Globalization.CultureInfo.InvariantCulture),
+            ExpirationDate = oneTimeOvernightSchedule.ExpirationDate?.ToString("yyyy-MM-dd", System.Globalization.CultureInfo.InvariantCulture),
+            TimeZone = oneTimeOvernightSchedule.TimeZone.Id,
+            Frequency = new
+            {
+                Type = "OneTime",
+                Settings = new { }
+            },
+            Description = oneTimeOvernightSchedule.ToString()
+        };
+        
+        Console.WriteLine(JsonSerializer.Serialize(oneTimeOvernightData, new JsonSerializerOptions { WriteIndented = true }));
+        schedules.Add(oneTimeOvernightData);
+        Console.WriteLine();
+
         Console.WriteLine("=== DAILY, DEFAULT INTERVAL ===");
         var dailyBuilder = Schedule<Daily>.CreateBuilder(
             new LocalDate(2024, 8, 5),
@@ -407,8 +435,8 @@ internal class Program
             DateTimeZoneProviders.Tzdb["UTC"]
         );
         yearlyBuilder.Configure(y => {
-            y.Months.Add(6);  // June
-            y.Months.Add(12); // December
+            y.Months.Add(6);
+            y.Months.Add(12);
             y.UseRelative(DayOfWeekIndex.Last, DayOfWeekType.WeekendDay);
         });
         var yearlyData = yearlyBuilder.Build();

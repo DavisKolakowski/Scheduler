@@ -3,11 +3,11 @@ using System;
 using NodaTime;
 
 using Scheduler.Core.Builders;
-using Scheduler.Core.Frequencies.Base;
+using Scheduler.Core.Contracts;
 
 namespace Scheduler.Core
 {
-    public class Schedule<TFrequency> where TFrequency : Frequency, new()
+    public class Schedule<TFrequency> where TFrequency : IFrequency, new()
     {
         public LocalDate StartDate { get; internal set; }
         public LocalTime StartTime { get; internal set; }
@@ -29,7 +29,7 @@ namespace Scheduler.Core
         
         public override string ToString()
         {
-            return Frequency.GetScheduleDescription(StartDate, StartTime, EndTime, TimeZone);
+            return Frequency.GenerateDescription(StartDate, StartTime, EndTime, TimeZone);
         }
     }
 }

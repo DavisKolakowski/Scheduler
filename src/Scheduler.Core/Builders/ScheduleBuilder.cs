@@ -5,10 +5,11 @@
     using NodaTime;
 
     using Scheduler.Core;
-
+    using Scheduler.Core.Contracts;
+    using Scheduler.Core.Frequencies;
     using Scheduler.Core.Frequencies.Base;
 
-    public class ScheduleBuilder<TFrequency> where TFrequency : Frequency, new()
+    public class ScheduleBuilder<TFrequency> where TFrequency : IFrequency, new()
     {
         private readonly LocalDate _startDate;
         private readonly LocalTime _startTime;
@@ -27,12 +28,20 @@
 
         public ScheduleBuilder<TFrequency> Configure(Action<TFrequency> configure)
         {
-            configure(_frequency);
+            if (_frequency is Recurring)
+            {
+                configure(_frequency);
+            }
             return this;
         }
 
         public Schedule<TFrequency> Build()
         {
+            if (_frequency is OneTime oneTime)
+            {
+                oneTime.SetExpirationDate(_startDate, _startTime, _endTime);
+            }
+            
             return new Schedule<TFrequency>
             {
                 StartDate = _startDate,
