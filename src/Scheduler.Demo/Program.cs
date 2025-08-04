@@ -327,6 +327,78 @@ internal class Program
         schedules.Add(relativeMonthlyData);
         Console.WriteLine();
 
+        Console.WriteLine("=== YEARLY, DEFAULT INTERVAL (SAME DATE EACH YEAR) ===");
+        var simpleYearlyBuilder = Schedule<Yearly>.CreateBuilder(
+            new LocalDate(2024, 12, 20),
+            new LocalTime(18, 0),
+            new LocalTime(23, 0),
+            DateTimeZoneProviders.Tzdb["UTC"]
+        );
+        var simpleYearlySchedule = simpleYearlyBuilder.Build();
+        
+        var simpleYearlyData = new
+        {
+            StartDate = simpleYearlySchedule.StartDate.ToString("yyyy-MM-dd", System.Globalization.CultureInfo.InvariantCulture),
+            StartTime = simpleYearlySchedule.StartTime.ToString("HH:mm", System.Globalization.CultureInfo.InvariantCulture),
+            EndTime = simpleYearlySchedule.EndTime.ToString("HH:mm", System.Globalization.CultureInfo.InvariantCulture),
+            ExpirationDate = simpleYearlySchedule.ExpirationDate?.ToString("yyyy-MM-dd", System.Globalization.CultureInfo.InvariantCulture),
+            TimeZone = simpleYearlySchedule.TimeZone.Id,
+            Frequency = new
+            {
+                Type = "Yearly",
+                Settings = new
+                {
+                    Interval = simpleYearlySchedule.Frequency.Interval,
+                    DayOfMonth = simpleYearlySchedule.Frequency.DayOfMonth > 0 ? simpleYearlySchedule.Frequency.DayOfMonth : simpleYearlySchedule.StartDate.Day,
+                    Month = simpleYearlySchedule.StartDate.Month
+                }
+            },
+            Description = simpleYearlySchedule.ToString()
+        };
+        
+        Console.WriteLine(JsonSerializer.Serialize(simpleYearlyData, new JsonSerializerOptions { WriteIndented = true }));
+        schedules.Add(simpleYearlyData);
+        Console.WriteLine();
+
+        Console.WriteLine("=== YEARLY, SPECIFIC MONTHS (SAME DAY OF MONTH) ===");
+        var yearlySpecificMonthsBuilder = Schedule<Yearly>.CreateBuilder(
+            new LocalDate(2024, 3, 15), // March 15th
+            new LocalTime(10, 0),
+            new LocalTime(12, 0),
+            DateTimeZoneProviders.Tzdb["UTC"]
+        );
+        yearlySpecificMonthsBuilder.Configure(y => {
+            y.Months.Add(3);  // March
+            y.Months.Add(6);  // June
+            y.Months.Add(9);  // September
+            y.Months.Add(12); // December
+        });
+        var yearlySpecificMonthsSchedule = yearlySpecificMonthsBuilder.Build();
+        
+        var yearlySpecificMonthsData = new
+        {
+            StartDate = yearlySpecificMonthsSchedule.StartDate.ToString("yyyy-MM-dd", System.Globalization.CultureInfo.InvariantCulture),
+            StartTime = yearlySpecificMonthsSchedule.StartTime.ToString("HH:mm", System.Globalization.CultureInfo.InvariantCulture),
+            EndTime = yearlySpecificMonthsSchedule.EndTime.ToString("HH:mm", System.Globalization.CultureInfo.InvariantCulture),
+            ExpirationDate = yearlySpecificMonthsSchedule.ExpirationDate?.ToString("yyyy-MM-dd", System.Globalization.CultureInfo.InvariantCulture),
+            TimeZone = yearlySpecificMonthsSchedule.TimeZone.Id,
+            Frequency = new
+            {
+                Type = "Yearly",
+                Settings = new
+                {
+                    Interval = yearlySpecificMonthsSchedule.Frequency.Interval,
+                    Months = yearlySpecificMonthsSchedule.Frequency.Months,
+                    DayOfMonth = yearlySpecificMonthsSchedule.Frequency.DayOfMonth > 0 ? yearlySpecificMonthsSchedule.Frequency.DayOfMonth : yearlySpecificMonthsSchedule.StartDate.Day
+                }
+            },
+            Description = yearlySpecificMonthsSchedule.ToString()
+        };
+        
+        Console.WriteLine(JsonSerializer.Serialize(yearlySpecificMonthsData, new JsonSerializerOptions { WriteIndented = true }));
+        schedules.Add(yearlySpecificMonthsData);
+        Console.WriteLine();
+
         Console.WriteLine("=== YEARLY, RELATIVE (LAST WEEKEND DAY OF JUNE AND DECEMBER) ===");
         var yearlyBuilder = Schedule<Yearly>.CreateBuilder(
             new LocalDate(2024, 6, 29),
@@ -339,34 +411,34 @@ internal class Program
             y.Months.Add(12); // December
             y.UseRelative(DayOfWeekIndex.Last, DayOfWeekType.WeekendDay);
         });
-        var yearlySchedule = yearlyBuilder.Build();
+        var yearlyData = yearlyBuilder.Build();
         
-        var yearlyData = new
+        var yearlyDataJson = new
         {
-            StartDate = yearlySchedule.StartDate.ToString("yyyy-MM-dd", System.Globalization.CultureInfo.InvariantCulture),
-            StartTime = yearlySchedule.StartTime.ToString("HH:mm", System.Globalization.CultureInfo.InvariantCulture),
-            EndTime = yearlySchedule.EndTime.ToString("HH:mm", System.Globalization.CultureInfo.InvariantCulture),
-            ExpirationDate = yearlySchedule.ExpirationDate?.ToString("yyyy-MM-dd", System.Globalization.CultureInfo.InvariantCulture),
-            TimeZone = yearlySchedule.TimeZone.Id,
+            StartDate = yearlyData.StartDate.ToString("yyyy-MM-dd", System.Globalization.CultureInfo.InvariantCulture),
+            StartTime = yearlyData.StartTime.ToString("HH:mm", System.Globalization.CultureInfo.InvariantCulture),
+            EndTime = yearlyData.EndTime.ToString("HH:mm", System.Globalization.CultureInfo.InvariantCulture),
+            ExpirationDate = yearlyData.ExpirationDate?.ToString("yyyy-MM-dd", System.Globalization.CultureInfo.InvariantCulture),
+            TimeZone = yearlyData.TimeZone.Id,
             Frequency = new
             {
                 Type = "Yearly",
                 Settings = new
                 {
-                    Interval = yearlySchedule.Frequency.Interval,
-                    Months = yearlySchedule.Frequency.Months,
-                    RelativeOptions = yearlySchedule.Frequency.RelativeOptions != null ? new
+                    Interval = yearlyData.Frequency.Interval,
+                    Months = yearlyData.Frequency.Months,
+                    RelativeOptions = yearlyData.Frequency.RelativeOptions != null ? new
                     {
-                        RelativeIndex = (int)yearlySchedule.Frequency.RelativeOptions.RelativeIndex,
-                        RelativeDayOfWeek = (int)yearlySchedule.Frequency.RelativeOptions.RelativeDayOfWeek
+                        RelativeIndex = (int)yearlyData.Frequency.RelativeOptions.RelativeIndex,
+                        RelativeDayOfWeek = (int)yearlyData.Frequency.RelativeOptions.RelativeDayOfWeek
                     } : null
                 }
             },
-            Description = yearlySchedule.ToString()
+            Description = yearlyData.ToString()
         };
         
-        Console.WriteLine(JsonSerializer.Serialize(yearlyData, new JsonSerializerOptions { WriteIndented = true }));
-        schedules.Add(yearlyData);
+        Console.WriteLine(JsonSerializer.Serialize(yearlyDataJson, new JsonSerializerOptions { WriteIndented = true }));
+        schedules.Add(yearlyDataJson);
         Console.WriteLine();
 
         Console.WriteLine("=== ALL SCHEDULES AS JSON ARRAY ===");
