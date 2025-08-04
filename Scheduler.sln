@@ -7,6 +7,8 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Scheduler.Core", "src\Sched
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Scheduler.UnitTests", "tests\Scheduler.UnitTests\Scheduler.UnitTests.csproj", "{A5DD3170-4582-4A8D-864F-0E90A920B3B1}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Scheduler.Demo", "src\Scheduler.Demo\Scheduler.Demo.csproj", "{CA82479C-BFEF-420B-8FBA-D6CDB46254CF}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -21,6 +23,10 @@ Global
 		{A5DD3170-4582-4A8D-864F-0E90A920B3B1}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{A5DD3170-4582-4A8D-864F-0E90A920B3B1}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{A5DD3170-4582-4A8D-864F-0E90A920B3B1}.Release|Any CPU.Build.0 = Release|Any CPU
+		{CA82479C-BFEF-420B-8FBA-D6CDB46254CF}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{CA82479C-BFEF-420B-8FBA-D6CDB46254CF}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{CA82479C-BFEF-420B-8FBA-D6CDB46254CF}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{CA82479C-BFEF-420B-8FBA-D6CDB46254CF}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

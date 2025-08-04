@@ -1,47 +1,35 @@
+using System;
+
+using NodaTime;
+
+using Scheduler.Core.Builders;
+using Scheduler.Core.Frequencies.Base;
+
 namespace Scheduler.Core
 {
-    using NodaTime;
-    using Scheduler.Core.Options;
-    using System;
-
-    public class Schedule
+    public class Schedule<TFrequency> where TFrequency : Frequency, new()
     {
-        public string Description => ToString();
-        public LocalDate StartDate { get; }
-        public LocalTime StartTime { get; }
-        public LocalTime EndTime { get; }
-        public DateTimeZone TimeZone { get; }
-        public Duration Duration => Duration.FromTicks(EndTime.TickOfDay - StartTime.TickOfDay);
-        public LocalDate? EndDate { get; }
-        public FrequencyOptions? Recurrence { get; }
-
-        internal Schedule(LocalDate startDate, LocalTime startTime, LocalTime endTime, DateTimeZone timeZone, LocalDate? endDate = null, FrequencyOptions? recurrence = null)
+        public LocalDate StartDate { get; internal set; }
+        public LocalTime StartTime { get; internal set; }
+        public LocalTime EndTime { get; internal set; }
+        public LocalDate? ExpirationDate => Frequency.ExpirationDate;
+        public DateTimeZone TimeZone { get; internal set; } = null!;
+        public TFrequency Frequency { get; internal set; } = new TFrequency();
+             
+        public bool IsExpired(LocalDate currentDate) => Frequency.IsExpired(currentDate);
+        
+        public static ScheduleBuilder<TFrequency> CreateBuilder(
+            LocalDate startDate,
+            LocalTime startTime, 
+            LocalTime endTime,
+            DateTimeZone timeZone)
         {
-            StartDate = startDate;
-            StartTime = startTime;
-            EndTime = endTime;
-            TimeZone = timeZone;
-            EndDate = endDate;
-            Recurrence = recurrence;
+            return new ScheduleBuilder<TFrequency>(startDate, startTime, endTime, timeZone);
         }
-
-        public static ScheduleBuilder CreateBuilder(LocalDate startDate, LocalTime startTime, LocalTime endTime, DateTimeZone timeZone)
-        {
-            return new ScheduleBuilder(startDate, startTime, endTime, timeZone);
-        }
-
+        
         public override string ToString()
         {
-            // Implementation for generating the description based on the schedule configuration
-            // This would be implemented based on the recurrence pattern
-            if (Recurrence == null)
-            {
-                var occurrence = EndDate.HasValue && EndDate.Value == StartDate ? "once" : "once";
-                return $"Occurs {occurrence} on {StartDate:MMMM d, yyyy} at {StartTime:h:mm tt}-{EndTime:h:mm tt}";
-            }
-
-            // Handle recurrence patterns
-            return Recurrence.GetDescription(StartDate, StartTime, EndTime, EndDate);
+            return Frequency.GetScheduleDescription(StartDate, StartTime, EndTime, TimeZone);
         }
     }
 }
