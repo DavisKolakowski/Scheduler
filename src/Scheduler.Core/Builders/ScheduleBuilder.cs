@@ -1,55 +1,42 @@
 ﻿namespace Scheduler.Core.Builders
 {
     using System;
+    using System.Collections.Generic;
+    using System.Text;
+    using System.Threading.Tasks;
 
     using NodaTime;
 
-    using Scheduler.Core;
     using Scheduler.Core.Contracts;
-    using Scheduler.Core.Frequencies;
-    using Scheduler.Core.Frequencies.Base;
+    using Scheduler.Core.Models;
+    using Scheduler.Core.Options;
 
-    public class ScheduleBuilder<TFrequency> where TFrequency : IFrequency, new()
+    public class ScheduleBuilder
     {
-        private readonly LocalDate _startDate;
-        private readonly LocalTime _startTime;
-        private readonly LocalTime _endTime;
-        private readonly DateTimeZone _timeZone;
-        private readonly TFrequency _frequency;
+        private readonly ScheduleContextOptions _contextOptions;
 
-        internal ScheduleBuilder(LocalDate startDate, LocalTime startTime, LocalTime endTime, DateTimeZone timeZone)
+        internal ScheduleBuilder(ScheduleContextOptions contextOptions)
         {
-            _startDate = startDate;
-            _startTime = startTime;
-            _endTime = endTime;
-            _timeZone = timeZone;
-            _frequency = new TFrequency();
+            _contextOptions = contextOptions;
         }
 
-        public ScheduleBuilder<TFrequency> Configure(Action<TFrequency> configure)
+        public RecurringScheduleBuilder Recurring(LocalDate? endDate = null)
         {
-            if (_frequency is Recurring)
-            {
-                configure(_frequency);
-            }
-            return this;
+            _contextOptions.EndDate = endDate;
+            return new RecurringScheduleBuilder(_contextOptions);
         }
 
-        public Schedule<TFrequency> Build()
+        public ISchedule<OneTimeOptions> Build()
         {
-            if (_frequency is OneTime oneTime)
+            var options = new OneTimeOptions
             {
-                oneTime.SetExpirationDate(_startDate, _startTime, _endTime);
-            }
-            
-            return new Schedule<TFrequency>
-            {
-                StartDate = _startDate,
-                StartTime = _startTime,
-                EndTime = _endTime,
-                TimeZone = _timeZone,
-                Frequency = _frequency
+                StartDate = _contextOptions.StartDate,
+                StartTime = _contextOptions.StartTime,
+                EndTime = _contextOptions.EndTime,
+                TimeZone = _contextOptions.TimeZone
             };
+
+            return new Schedule<OneTimeOptions>(options, _contextOptions.Clock);
         }
     }
 }
