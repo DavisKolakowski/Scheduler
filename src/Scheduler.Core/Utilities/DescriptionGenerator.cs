@@ -110,7 +110,16 @@
         private static string FormatDayOfWeekList(List<int> days) => ToFormattedString(days.OrderBy(d => d).Select(d => ((IsoDayOfWeek)d).ToString()).ToList());
         private static string FormatMonthList(List<int> months) => ToFormattedString(months.OrderBy(m => m).Select(m => CultureInfo.InvariantCulture.DateTimeFormat.GetMonthName(m)).ToList());
         private static string FormatDayOfMonthList(List<int> days) => ToFormattedString(days.OrderBy(d => d).Select(GetOrdinal).ToList());
-        private static string FormatRelativeOccurrence(RelativeOccurrence occurrence) => $"{occurrence.Index.ToString().ToLower()} {occurrence.Position.ToString().ToLower()}";
+        private static string FormatRelativeOccurrence(RelativeOccurrence occurrence)
+        {
+            var index = occurrence.Index.ToString().ToLower();
+            var position = occurrence.Position.ToString();
+
+            // Split position by uppercase letters and join with spaces
+            var formattedPosition = string.Concat(position.Select(c => char.IsUpper(c) ? " " + c : c.ToString())).TrimStart().ToLower();
+
+            return $"{index} {formattedPosition}";
+        }
         private static string FormatDateWithOrdinal(LocalDate date) => $"{date.ToString("MMMM", CultureInfo.InvariantCulture)} {GetOrdinal(date.Day)}, {date.Year}";
         private static string GetOrdinal(int num)
         {

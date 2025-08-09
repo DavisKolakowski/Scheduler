@@ -49,6 +49,7 @@
         public void UseRelative(RelativeIndex index, RelativePosition position)
         {
             Relative = new RelativeOccurrence(index, position);
+            DaysOfMonth.Clear();
         }
     }
 }
