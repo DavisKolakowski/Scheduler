@@ -33,7 +33,8 @@
                 StartDate = _contextOptions.StartDate,
                 StartTime = _contextOptions.StartTime,
                 EndTime = _contextOptions.EndTime,
-                TimeZone = _contextOptions.TimeZone
+                TimeZone = _contextOptions.TimeZone,
+                CalendarSystem = _contextOptions.CalendarSystem
             };
 
             return new Schedule<OneTimeOptions>(options, _contextOptions.Clock);

@@ -13,5 +13,6 @@
         LocalTime EndTime { get; set; }
         DateTimeZone TimeZone { get; set; }
         LocalDate? EndDate { get; set; }
+        CalendarSystem CalendarSystem { get; set; }
     }
 }

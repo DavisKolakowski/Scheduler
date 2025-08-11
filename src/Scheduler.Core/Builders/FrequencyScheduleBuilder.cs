@@ -27,6 +27,7 @@
             _options.EndTime = _contextOptions.EndTime;
             _options.EndDate = _contextOptions.EndDate;
             _options.TimeZone = _contextOptions.TimeZone;
+            _options.CalendarSystem = _contextOptions.CalendarSystem;
 
             return new Schedule<T>(_options, _contextOptions.Clock);
         }
