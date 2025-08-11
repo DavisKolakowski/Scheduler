@@ -9,12 +9,12 @@
     using Scheduler.Core.Models;
     using Scheduler.Core.Options;
 
-    public class FrequencyScheduleBuilder<T> where T : RecurringOptions
+    public class RecurringFrequencyOptionsBuilder<T> where T : RecurringOptions
     {
         private readonly T _options;
         private readonly ScheduleContextOptions _contextOptions;
 
-        internal FrequencyScheduleBuilder(T options, ScheduleContextOptions contextOptions)
+        internal RecurringFrequencyOptionsBuilder(T options, ScheduleContextOptions contextOptions)
         {
             _options = options;
             _contextOptions = contextOptions;

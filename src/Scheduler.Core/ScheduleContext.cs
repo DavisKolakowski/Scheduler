@@ -17,7 +17,7 @@ namespace Scheduler.Core
             _clock = clock;
         }
 
-        public ScheduleBuilder CreateBuilder(LocalDate startDate, LocalTime startTime, LocalTime endTime, DateTimeZone timeZone)
+        public ScheduleContextOptionsBuilder CreateBuilder(LocalDate startDate, LocalTime startTime, LocalTime endTime, DateTimeZone timeZone)
         {
             var contextOptions = new ScheduleContextOptions
             {
@@ -28,7 +28,7 @@ namespace Scheduler.Core
                 Clock = _clock
             };
 
-            return new ScheduleBuilder(contextOptions);
+            return new ScheduleContextOptionsBuilder(contextOptions);
         }
     }
 }

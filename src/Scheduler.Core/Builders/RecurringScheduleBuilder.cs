@@ -15,35 +15,35 @@
             _contextOptions = contextOptions;
         }
 
-        public FrequencyScheduleBuilder<DailyOptions> Daily(Action<DailyOptions>? configure = null)
+        public RecurringFrequencyOptionsBuilder<DailyOptions> Daily(Action<DailyOptions>? configure = null)
         {
             var options = new DailyOptions();
             configure?.Invoke(options);
-            return new FrequencyScheduleBuilder<DailyOptions>(options, _contextOptions);
+            return new RecurringFrequencyOptionsBuilder<DailyOptions>(options, _contextOptions);
         }
 
-        public FrequencyScheduleBuilder<WeeklyOptions> Weekly(Action<WeeklyOptions>? configure = null)
+        public RecurringFrequencyOptionsBuilder<WeeklyOptions> Weekly(Action<WeeklyOptions>? configure = null)
         {
             var options = new WeeklyOptions();
             options.Initialize((int)_contextOptions.StartDate.DayOfWeek);
             configure?.Invoke(options);
-            return new FrequencyScheduleBuilder<WeeklyOptions>(options, _contextOptions);
+            return new RecurringFrequencyOptionsBuilder<WeeklyOptions>(options, _contextOptions);
         }
 
-        public FrequencyScheduleBuilder<MonthlyOptions> Monthly(Action<MonthlyOptions>? configure = null)
+        public RecurringFrequencyOptionsBuilder<MonthlyOptions> Monthly(Action<MonthlyOptions>? configure = null)
         {
             var options = new MonthlyOptions();
             options.Initialize(_contextOptions.StartDate.Day);
             configure?.Invoke(options);
-            return new FrequencyScheduleBuilder<MonthlyOptions>(options, _contextOptions);
+            return new RecurringFrequencyOptionsBuilder<MonthlyOptions>(options, _contextOptions);
         }
 
-        public FrequencyScheduleBuilder<YearlyOptions> Yearly(Action<YearlyOptions>? configure = null)
+        public RecurringFrequencyOptionsBuilder<YearlyOptions> Yearly(Action<YearlyOptions>? configure = null)
         {
             var options = new YearlyOptions();
             options.Initialize(_contextOptions.StartDate);
             configure?.Invoke(options);
-            return new FrequencyScheduleBuilder<YearlyOptions>(options, _contextOptions);
+            return new RecurringFrequencyOptionsBuilder<YearlyOptions>(options, _contextOptions);
         }
     }
 }

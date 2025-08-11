@@ -11,11 +11,11 @@
     using Scheduler.Core.Models;
     using Scheduler.Core.Options;
 
-    public class ScheduleBuilder
+    public class ScheduleContextOptionsBuilder
     {
         private readonly ScheduleContextOptions _contextOptions;
 
-        internal ScheduleBuilder(ScheduleContextOptions contextOptions)
+        internal ScheduleContextOptionsBuilder(ScheduleContextOptions contextOptions)
         {
             _contextOptions = contextOptions;
         }
