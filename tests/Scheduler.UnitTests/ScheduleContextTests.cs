@@ -27,25 +27,6 @@ public class ScheduleContextTests : BaseScheduleTests
     }
 
     [Fact]
-    public void ScheduleContext_CreateBuilderWithCalendarSystem_ShouldWork()
-    {
-        // Arrange
-        var clock = CreateClock(2025, 1, 1, 12, 0);
-        var context = new ScheduleContext(clock);
-
-        // Act
-        var builder = context.CreateBuilder(
-            TestDate(2025, 1, 1),
-            TestTime(10, 0),
-            TestTime(11, 0),
-            TestTimeZone,
-            CalendarSystem.Iso);
-
-        // Assert
-        Assert.NotNull(builder);
-    }
-
-    [Fact]
     public void ScheduleContext_WithDifferentClocks_ShouldRespectClock()
     {
         // Arrange

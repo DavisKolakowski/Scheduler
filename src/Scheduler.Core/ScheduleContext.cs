@@ -30,20 +30,5 @@ namespace Scheduler.Core
 
             return new ScheduleBuilder(contextOptions);
         }
-
-        public ScheduleBuilder CreateBuilder(LocalDate startDate, LocalTime startTime, LocalTime endTime, DateTimeZone timeZone, CalendarSystem calendarSystem)
-        {
-            var contextOptions = new ScheduleContextOptions
-            {
-                StartDate = startDate,
-                StartTime = startTime,
-                EndTime = endTime,
-                TimeZone = timeZone,
-                CalendarSystem = calendarSystem,
-                Clock = _clock
-            };
-
-            return new ScheduleBuilder(contextOptions);
-        }
     }
 }

@@ -15,6 +15,5 @@
         public LocalTime EndTime { get; set; }
         public DateTimeZone TimeZone { get; set; } = null!;
         public LocalDate? EndDate { get; set; }
-        public CalendarSystem CalendarSystem { get; set; } = CalendarSystem.Iso;
     }
 }

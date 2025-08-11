@@ -18,7 +18,6 @@
         public static IEnumerable<ZonedDateTime> GetOccurrences(IScheduleOptions options, Instant start, Instant end)
         {
             var zone = options.TimeZone;
-            var calendar = options.CalendarSystem;
             var searchStart = start.InZone(zone);
             var searchEnd = end.InZone(zone);
             var searchLimit = options.EndDate.HasValue ? Min(searchEnd.Date, options.EndDate.Value) : searchEnd.Date;
@@ -63,10 +62,10 @@
                     break;
 
                 case MonthlyOptions o:
-                    var monthlyDate = new LocalDate(iterDate.Year, iterDate.Month, 1, calendar);
+                    var monthlyDate = new LocalDate(iterDate.Year, iterDate.Month, 1);
                     if (options.StartDate.Year > monthlyDate.Year || (options.StartDate.Year == monthlyDate.Year && options.StartDate.Month > monthlyDate.Month))
                     {
-                        monthlyDate = new LocalDate(options.StartDate.Year, options.StartDate.Month, 1, calendar);
+                        monthlyDate = new LocalDate(options.StartDate.Year, options.StartDate.Month, 1);
                     }
 
                     for (var d = monthlyDate; d <= searchLimit; d = d.PlusMonths(1))
@@ -77,11 +76,11 @@
                         IEnumerable<LocalDate?> occurrencesInMonth;
                         if (o.IsRelative && o.Relative.HasValue)
                         {
-                            occurrencesInMonth = new[] { FindRelativeDateInMonth(d.Year, d.Month, calendar, o.Relative.Value) };
+                            occurrencesInMonth = new[] { FindRelativeDateInMonth(d.Year, d.Month, o.Relative.Value) };
                         }
                         else
                         {
-                            occurrencesInMonth = o.DaysOfMonth.Select(day => TryCreateDate(d.Year, d.Month, day, calendar));
+                            occurrencesInMonth = o.DaysOfMonth.Select(day => TryCreateDate(d.Year, d.Month, day));
                         }
 
                         foreach (var occurrenceDate in occurrencesInMonth)
@@ -110,11 +109,11 @@
                             IEnumerable<LocalDate?> occurrencesInMonth;
                             if (o.IsRelative && o.Relative.HasValue)
                             {
-                                occurrencesInMonth = new[] { FindRelativeDateInMonth(y, month, calendar, o.Relative.Value) };
+                                occurrencesInMonth = new[] { FindRelativeDateInMonth(y, month, o.Relative.Value) };
                             }
                             else
                             {
-                                occurrencesInMonth = o.DaysOfMonth.Select(day => TryCreateDate(y, month, day, calendar));
+                                occurrencesInMonth = o.DaysOfMonth.Select(day => TryCreateDate(y, month, day));
                             }
 
                             foreach (var occurrenceDate in occurrencesInMonth)
@@ -130,36 +129,36 @@
             }
         }
 
-        private static LocalDate? FindRelativeDateInMonth(int year, int month, CalendarSystem calendar, RelativeOccurrence relative)
+        private static LocalDate? FindRelativeDateInMonth(int year, int month, RelativeOccurrence relative)
         {
-            var firstDayOfMonth = new LocalDate(year, month, 1, calendar);
+            var firstDayOfMonth = new LocalDate(year, month, 1);
             var lastDayOfMonth = firstDayOfMonth.PlusMonths(1).PlusDays(-1);
             var daysInMonth = lastDayOfMonth.Day;
 
             if (relative.Position == RelativePosition.Day)
             {
                 int day = relative.Index == RelativeIndex.Last ? daysInMonth : (int)relative.Index;
-                return day <= daysInMonth ? new LocalDate(year, month, day, calendar) : (LocalDate?)null;
+                return day <= daysInMonth ? new LocalDate(year, month, day) : (LocalDate?)null;
             }
 
             IEnumerable<LocalDate> candidates;
             if (relative.Position == RelativePosition.Weekday)
             {
                 candidates = Enumerable.Range(1, daysInMonth)
-                    .Select(d => new LocalDate(year, month, d, calendar))
+                    .Select(d => new LocalDate(year, month, d))
                     .Where(d => d.DayOfWeek >= IsoDayOfWeek.Monday && d.DayOfWeek <= IsoDayOfWeek.Friday);
             }
             else if (relative.Position == RelativePosition.WeekendDay)
             {
                 candidates = Enumerable.Range(1, daysInMonth)
-                    .Select(d => new LocalDate(year, month, d, calendar))
+                    .Select(d => new LocalDate(year, month, d))
                     .Where(d => d.DayOfWeek == IsoDayOfWeek.Saturday || d.DayOfWeek == IsoDayOfWeek.Sunday);
             }
             else
             {
                 var targetDayOfWeek = (IsoDayOfWeek)relative.Position;
                 candidates = Enumerable.Range(1, daysInMonth)
-                    .Select(d => new LocalDate(year, month, d, calendar))
+                    .Select(d => new LocalDate(year, month, d))
                     .Where(d => d.DayOfWeek == targetDayOfWeek);
             }
 
@@ -172,9 +171,9 @@
             return index < candidateList.Count ? candidateList[index] : (LocalDate?)null;
         }
 
-        private static LocalDate? TryCreateDate(int year, int month, int day, CalendarSystem calendar)
+        private static LocalDate? TryCreateDate(int year, int month, int day)
         {
-            try { return new LocalDate(year, month, day, calendar); }
+            try { return new LocalDate(year, month, day); }
             catch (ArgumentOutOfRangeException) { return null; }
         }
 
