@@ -8,6 +8,7 @@ using System.Threading.Tasks;
 
 using NodaTime;
 using NodaTime.Serialization.SystemTextJson;
+using NodaTime.Testing;
 
 using Scheduler.Core;
 using Scheduler.Core.Contracts;
