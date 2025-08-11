@@ -13,10 +13,16 @@ namespace Scheduler.Core
         private readonly CalendarSystem _calendar;
         private readonly IClock _clock;
 
-        public ScheduleContext(IClock? clock = null, CalendarSystem? calendar = null)
+        public ScheduleContext(IClock clock)
         {
-            _clock = clock ?? SystemClock.Instance;
-            _calendar = calendar ?? CalendarSystem.Iso;
+            _clock = clock;
+            _calendar = CalendarSystem.Iso;
+        }
+
+        public ScheduleContext(IClock clock, CalendarSystem calendar)
+        {
+            _clock = clock;
+            _calendar = calendar;
         }
 
         public ScheduleBuilder CreateBuilder(LocalDate startDate, LocalTime startTime, LocalTime endTime, DateTimeZone timeZone)
