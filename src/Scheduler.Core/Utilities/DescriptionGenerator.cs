@@ -104,7 +104,7 @@
         private static string FormatTimeRange(LocalTime start, LocalTime end)
         {
             var culture = CultureInfo.InvariantCulture;
-            return $"{start.ToString("h:mm tt", culture).ToLower()}-{end.ToString("h:mm tt", culture).ToLower()}";
+            return $"{start.ToString("h:mm tt", culture).ToUpper()} - {end.ToString("h:mm tt", culture).ToUpper()}";
         }
 
         private static string FormatDayOfWeekList(IReadOnlyList<int> days) => ToFormattedString(days.OrderBy(d => d).Select(d => ((IsoDayOfWeek)d).ToString()).ToList());
