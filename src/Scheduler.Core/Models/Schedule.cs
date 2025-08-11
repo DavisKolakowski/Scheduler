@@ -41,7 +41,23 @@
         {
             var now = _clock.GetCurrentInstant();
 
-            var activeOccurrence = GetOccurrences(now.Minus(_occurrenceDuration), now.Plus(Duration.FromSeconds(1)))
+            if (Options is OneTimeOptions)
+            {
+                var eventStart = _firstOccurrence.ToInstant();
+                var eventEnd = eventStart.Plus(_occurrenceDuration);
+                
+                if (eventStart > now || (eventStart <= now && eventEnd > now))
+                {
+                    return _firstOccurrence;
+                }
+                
+                return null;
+            }
+
+            var searchStart = now.Minus(Duration.FromDays(1)); 
+            var searchEnd = now.Plus(Duration.FromSeconds(1));
+            
+            var activeOccurrence = GetOccurrences(searchStart, searchEnd)
                                    .FirstOrDefault(occ => occ.ToInstant() <= now && occ.ToInstant().Plus(_occurrenceDuration) > now);
 
             if (activeOccurrence != default)
@@ -49,13 +65,30 @@
                 return activeOccurrence;
             }
 
-            var next = GetUpcomingOccurrences(1).FirstOrDefault();
+            var futureSearchEnd = _expiration?.ToInstant() ?? now.Plus(Duration.FromDays(365 * 10));
+            var next = GetOccurrences(now.Plus(Duration.FromMilliseconds(1)), futureSearchEnd)
+                       .FirstOrDefault();
+            
             return next == default ? (ZonedDateTime?)null : next;
         }
 
         public ZonedDateTime? GetPreviousOccurrence()
         {
             var now = _clock.GetCurrentInstant();
+            
+            if (Options is OneTimeOptions)
+            {
+                var eventStart = _firstOccurrence.ToInstant();
+                var eventEnd = eventStart.Plus(_occurrenceDuration);
+                
+                if (eventEnd <= now)
+                {
+                    return _firstOccurrence;
+                }
+                
+                return null;
+            }
+
             var previous = GetOccurrences(_firstOccurrence.ToInstant(), now)
                            .LastOrDefault(occ => occ.ToInstant().Plus(_occurrenceDuration) <= now);
 

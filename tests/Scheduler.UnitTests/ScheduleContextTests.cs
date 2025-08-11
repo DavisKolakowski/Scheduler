@@ -30,8 +30,8 @@ public class ScheduleContextTests : BaseScheduleTests
     public void ScheduleContext_WithDifferentClocks_ShouldRespectClock()
     {
         // Arrange
-        var clock1 = CreateClock(2025, 1, 1, 12, 0);
-        var clock2 = CreateClock(2025, 1, 1, 18, 0);
+        var clock1 = CreateClock(2025, 1, 1, 16, 0); // 4 PM UTC = 11 AM EST (after 10-11 AM EST event)
+        var clock2 = CreateClock(2025, 1, 1, 20, 0); // 8 PM UTC = 3 PM EST (also after 10-11 AM EST event)
         
         var context1 = new ScheduleContext(clock1);
         var context2 = new ScheduleContext(clock2);
@@ -53,8 +53,8 @@ public class ScheduleContextTests : BaseScheduleTests
         var next2 = schedule2.GetNextOccurrence();
 
         // Assert
-        // At 12:00, the 10-11 AM event should be in the past
-        // At 18:00, the 10-11 AM event should be in the past
+        // At 11 AM EST, the 10-11 AM EST event just finished
+        // At 3 PM EST, the 10-11 AM EST event is clearly in the past
         // Both should have null next occurrence since it's a one-time event in the past
         Assert.Null(next1);
         Assert.Null(next2);

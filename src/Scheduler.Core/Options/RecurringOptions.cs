@@ -10,6 +10,12 @@
 
     public abstract class RecurringOptions : ScheduleOptions
     {
-        public int Interval { get; set; } = 1;
+        private int _interval = 1;
+
+        public int Interval 
+        { 
+            get => _interval;
+            set => _interval = Math.Max(1, value);
+        }
     }
 }

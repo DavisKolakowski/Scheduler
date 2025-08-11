@@ -27,7 +27,8 @@
             {
                 case OneTimeOptions o:
                     var oneTimeZdt = o.StartDate.At(o.StartTime).InZone(zone, Resolvers.LenientResolver);
-                    if (ZonedDateTime.Comparer.Instant.Compare(oneTimeZdt, searchStart) >= 0 && ZonedDateTime.Comparer.Instant.Compare(oneTimeZdt, searchEnd) <= 0)
+                    if (ZonedDateTime.Comparer.Instant.Compare(oneTimeZdt, searchStart) >= 0 && 
+                        ZonedDateTime.Comparer.Instant.Compare(oneTimeZdt, searchEnd) <= 0)
                     {
                         yield return oneTimeZdt;
                     }
@@ -68,7 +69,7 @@
                         monthlyDate = new LocalDate(options.StartDate.Year, options.StartDate.Month, 1);
                     }
 
-                    for (var d = monthlyDate; d <= searchLimit; d = d.PlusMonths(1))
+                    for (var d = monthlyDate; d <= searchLimit; d = d.PlusMonths(o.Interval))
                     {
                         var monthsBetween = Period.Between(options.StartDate.With(DateAdjusters.StartOfMonth), d, PeriodUnits.Months).Months;
                         if (monthsBetween % o.Interval != 0) continue;

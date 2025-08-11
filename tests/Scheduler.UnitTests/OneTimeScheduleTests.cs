@@ -41,7 +41,7 @@ public class OneTimeScheduleTests : BaseScheduleTests
     public void OneTimeSchedule_InPast_ShouldReturnPreviousOccurrence()
     {
         // Arrange
-        var clock = CreateClock(2024, 8, 20, 12, 0);
+        var clock = CreateClock(2024, 8, 20, 16, 0); // 4 PM UTC = 12 PM EDT (after 11:30 AM EDT event)
         var context = CreateContext(clock);
         
         var builder = context.CreateBuilder(
@@ -219,8 +219,8 @@ public class OneTimeScheduleTests : BaseScheduleTests
     [InlineData(12, 30)]
     public void OneTimeSchedule_VariousStartTimes_ShouldWork(int hour, int minute)
     {
-        // Arrange
-        var clock = CreateClock(2024, 8, 20, hour - 1 < 0 ? 23 : hour - 1, 0);
+        // Arrange - Set clock before the schedule time to ensure it's upcoming
+        var clock = CreateClock(2024, 8, 19, 23, 0); // Day before the schedule
         var context = CreateContext(clock);
         
         var builder = context.CreateBuilder(

@@ -14,7 +14,7 @@ namespace Scheduler.Core
 
         public ScheduleContext(IClock clock)
         {
-            _clock = clock;
+            _clock = clock ?? throw new ArgumentNullException(nameof(clock));
         }
 
         public ScheduleContextOptionsBuilder CreateBuilder(LocalDate startDate, LocalTime startTime, LocalTime endTime, DateTimeZone timeZone)

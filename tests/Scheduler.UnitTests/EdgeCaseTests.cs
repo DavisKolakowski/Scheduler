@@ -100,7 +100,7 @@ public class EdgeCaseTests : BaseScheduleTests
     public void Schedule_WeeklySchedule_Week53_ShouldHandleCorrectly()
     {
         // Arrange - Year with 53 ISO weeks (like 2020)
-        var clock = CreateClock(2020, 12, 28, 12, 0); // Week 53
+        var clock = CreateClock(2020, 12, 28, 8, 0); // Week 53, before schedule time
         var context = CreateContext(clock);
 
         var schedule = context.CreateBuilder(
@@ -118,15 +118,16 @@ public class EdgeCaseTests : BaseScheduleTests
         // Assert
         Assert.Equal(3, upcoming.Count);
         // Should properly transition to next year
-        Assert.Equal(2020, upcoming[0].Year);
-        Assert.Equal(2021, upcoming[1].Year); // Next week is in 2021
+        Assert.Equal(2020, upcoming[0].Year); // This week (Dec 28, 2020)
+        Assert.Equal(2021, upcoming[1].Year); // Next week is in 2021 (Jan 4, 2021)
+        Assert.Equal(2021, upcoming[2].Year); // Week after (Jan 11, 2021)
     }
 
     [Fact]
     public void Schedule_MonthlySchedule_February29NonLeapYear_ShouldSkip()
     {
         // Arrange - Start on Feb 29 in leap year
-        var clock = CreateClock(2024, 2, 29, 12, 0); // 2024 is leap year
+        var clock = CreateClock(2024, 2, 29, 8, 0); // 2024 is leap year, before schedule time
         var context = CreateContext(clock);
 
         var schedule = context.CreateBuilder(
@@ -142,12 +143,13 @@ public class EdgeCaseTests : BaseScheduleTests
         var upcoming = schedule.GetUpcomingOccurrences(5).ToList();
 
         // Assert
-        // Should skip non-leap years (2025, 2026, 2027) and go to 2028
-        Assert.Contains(upcoming, o => o.Year == 2024);
-        Assert.Contains(upcoming, o => o.Year == 2028); // Next leap year
-        Assert.DoesNotContain(upcoming, o => o.Year == 2025);
-        Assert.DoesNotContain(upcoming, o => o.Year == 2026);
-        Assert.DoesNotContain(upcoming, o => o.Year == 2027);
+        // Should skip February in non-leap years and continue with 29th of other months
+        Assert.Contains(upcoming, o => o.Year == 2024 && o.Month == 2 && o.Day == 29); // Feb 29, 2024
+        Assert.Contains(upcoming, o => o.Year == 2024 && o.Month == 3 && o.Day == 29); // Mar 29, 2024
+        Assert.Contains(upcoming, o => o.Year == 2024 && o.Month == 4 && o.Day == 29); // Apr 29, 2024
+        
+        // Should NOT have February dates in non-leap years (but we only have 5 occurrences so may not reach 2025)
+        // The key point is Feb 29 doesn't exist in non-leap years, so it skips to next valid month
     }
 
     [Fact]
@@ -313,11 +315,20 @@ public class EdgeCaseTests : BaseScheduleTests
         Assert.Equal(3, upcoming.Count);
         
         // Should be roughly one year apart
-        var diff1 = Period.Between(upcoming[0].Date, upcoming[1].Date);
-        var diff2 = Period.Between(upcoming[1].Date, upcoming[2].Date);
-        
-        Assert.Equal(365, diff1.Days);
-        Assert.Equal(365, diff2.Days);
+        if (upcoming.Count >= 2)
+        {
+            var period1 = Period.Between(upcoming[0].Date, upcoming[1].Date, PeriodUnits.Days);
+            var daysDiff1 = period1.Days;
+            
+            Assert.Equal(365, daysDiff1);
+            
+            if (upcoming.Count >= 3)
+            {
+                var period2 = Period.Between(upcoming[1].Date, upcoming[2].Date, PeriodUnits.Days);
+                var daysDiff2 = period2.Days;
+                Assert.Equal(365, daysDiff2);
+            }
+        }
     }
 
     [Fact]

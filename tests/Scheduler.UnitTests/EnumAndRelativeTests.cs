@@ -304,10 +304,10 @@ public class EnumAndRelativeTests : BaseScheduleTests
         // Assert
         Assert.Equal(5, upcoming.Count);
         
-        // Verify intervals
+        // Verify intervals using proper NodaTime calculation
         for (int i = 0; i < upcoming.Count - 1; i++)
         {
-            var diff = Period.Between(upcoming[i].Date, upcoming[i + 1].Date);
+            var diff = Period.Between(upcoming[i].Date, upcoming[i + 1].Date, PeriodUnits.Days);
             Assert.Equal(interval, diff.Days);
         }
     }
@@ -341,10 +341,10 @@ public class EnumAndRelativeTests : BaseScheduleTests
         // All should be Mondays
         Assert.All(upcoming, o => Assert.Equal(IsoDayOfWeek.Monday, o.DayOfWeek));
         
-        // Verify intervals (approximately)
+        // Verify intervals using proper NodaTime calculation
         for (int i = 0; i < upcoming.Count - 1; i++)
         {
-            var diff = Period.Between(upcoming[i].Date, upcoming[i + 1].Date);
+            var diff = Period.Between(upcoming[i].Date, upcoming[i + 1].Date, PeriodUnits.Days);
             Assert.Equal(interval * 7, diff.Days);
         }
     }
