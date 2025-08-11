@@ -54,7 +54,7 @@ public static class ScheduleDemos
     private static ISchedule<IScheduleOptions> Demo5_WeeklyOnMonWedFri() =>
         _context.CreateBuilder(new LocalDate(2025, 8, 4), new LocalTime(12, 0), new LocalTime(13, 0), _tz)
                 .Recurring()
-                .Weekly(o => o.DaysOfWeek.AddRange(new[] { 1, 3, 5 }))
+                .Weekly(o => o.UseDaysOfWeek(list => list.AddRange(new[] { 1, 3, 5 })))
                 .Build();
 
     private static ISchedule<IScheduleOptions> Demo6_BiWeeklyOnSunMon() =>
@@ -63,7 +63,7 @@ public static class ScheduleDemos
                 .Weekly(o =>
                 {
                     o.Interval = 2;
-                    o.DaysOfWeek.AddRange(new[] { 7, 1 });
+                    o.UseDaysOfWeek(list => list.AddRange(new[] { 7, 1 }));
                 })
                 .Build();
 
@@ -77,7 +77,7 @@ public static class ScheduleDemos
     private static ISchedule<IScheduleOptions> Demo7a_MonthlyOnMultipleDays() =>
         _context.CreateBuilder(new LocalDate(2025, 7, 1), new LocalTime(12, 0), new LocalTime(12, 30), _tz)
                 .Recurring()
-                .Monthly(o => o.DaysOfMonth.AddRange(new[] { 1, 15, 31 }))
+                .Monthly(o => o.UseDaysOfMonth(list => list.AddRange(new[] { 1, 15, 31 })))
                 .Build();
 
     private static ISchedule<IScheduleOptions> Demo8_MonthlyOnFirstFriday() =>
@@ -106,13 +106,13 @@ public static class ScheduleDemos
     private static ISchedule<IScheduleOptions> Demo11_YearlyInJunDecOn15th() =>
         _context.CreateBuilder(new LocalDate(2025, 6, 15), new LocalTime(10, 0), new LocalTime(16, 0), _tz)
                 .Recurring()
-                .Yearly(o => o.Months.AddRange(new[] { 6, 12 }))
+                .Yearly(o => o.UseMonthsOfYear(list => list.AddRange(new[] { 6, 12 })))
                 .Build();
 
     private static ISchedule<IScheduleOptions> Demo11a_YearlyInFebOnMultipleDays() =>
         _context.CreateBuilder(new LocalDate(2025, 2, 1), new LocalTime(9, 0), new LocalTime(10, 0), _tz)
                 .Recurring()
-                .Yearly(o => o.DaysOfMonth.AddRange(new[] { 10, 20 }))
+                .Yearly(o => o.UseDaysOfMonth(list => list.AddRange(new[] { 10, 20 })))
                 .Build();
 
     private static ISchedule<IScheduleOptions> Demo12_Every2YearsOnFirstWeekendDay() =>
@@ -121,7 +121,7 @@ public static class ScheduleDemos
                 .Yearly(o =>
                 {
                     o.Interval = 2;
-                    o.Months.AddRange(new[] { 1, 12 });
+                    o.UseMonthsOfYear(list => list.AddRange(new[] { 1, 12 }));
                     o.UseRelative(RelativeIndex.First, RelativePosition.WeekendDay);
                 })
                 .Build();

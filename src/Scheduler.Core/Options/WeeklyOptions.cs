@@ -9,17 +9,25 @@
     {
         private List<int> _daysOfWeek = new List<int>();
 
-        public List<int> DaysOfWeek
+        public IReadOnlyList<int> DaysOfWeek => _daysOfWeek;
+
+        public void UseDaysOfWeek(Action<List<int>> configure)
         {
-            get => _daysOfWeek;
-            set
+            var temp = new List<int>();
+            configure?.Invoke(temp);
+
+            _daysOfWeek = temp
+                .Where(d => d >= 1 && d <= 7)
+                .Distinct()
+                .OrderBy(d => d)
+                .ToList();
+        }
+
+        internal void Initialize(int isoDayOfWeek)
+        {
+            if (_daysOfWeek.Count == 0 && isoDayOfWeek >= 1 && isoDayOfWeek <= 7)
             {
-                if (value == null)
-                {
-                    _daysOfWeek = new List<int>();
-                    return;
-                }
-                _daysOfWeek = value.Where(d => d >= 1 && d <= 7).Distinct().OrderBy(d => d).ToList();
+                _daysOfWeek.Add(isoDayOfWeek);
             }
         }
     }
