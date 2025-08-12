@@ -130,6 +130,7 @@
         {
             if (items.Count == 0) return string.Empty;
             if (items.Count == 1) return items[0];
+            if (items.Count == 2) return items[0] + " and " + items[1];
             return string.Join(", ", items.Take(items.Count - 1)) + ", and " + items.Last();
         }
     }

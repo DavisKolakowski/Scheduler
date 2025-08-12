@@ -35,7 +35,7 @@ public class DailyScheduleTests : BaseScheduleTests
         // Verify occurrences are on consecutive days
         for (int i = 0; i < upcoming.Count - 1; i++)
         {
-            var diff = Period.Between(upcoming[i].Date, upcoming[i + 1].Date);
+            var diff = Period.Between(upcoming[i].Date, upcoming[i + 1].Date, PeriodUnits.Days);
             Assert.Equal(1, diff.Days);
         }
     }
@@ -166,7 +166,7 @@ public class DailyScheduleTests : BaseScheduleTests
     public void DailySchedule_AfterDailyOccurrence_ShouldReturnTomorrow()
     {
         // Arrange - Clock set after today's occurrence
-        var clock = CreateClock(2025, 8, 1, 18, 0); // 6 PM on Aug 1 (after 5 PM end)
+        var clock = CreateClock(2025, 8, 1, 22, 0); // 10 PM UTC = 6 PM EDT (after 5 PM EDT end)
         var context = CreateContext(clock);
         
         var builder = context.CreateBuilder(
@@ -296,7 +296,7 @@ public class DailyScheduleTests : BaseScheduleTests
         // Verify correct interval between occurrences
         for (int i = 0; i < upcoming.Count - 1; i++)
         {
-            var diff = Period.Between(upcoming[i].Date, upcoming[i + 1].Date);
+            var diff = Period.Between(upcoming[i].Date, upcoming[i + 1].Date, PeriodUnits.Days);
             Assert.Equal(interval, diff.Days);
         }
     }

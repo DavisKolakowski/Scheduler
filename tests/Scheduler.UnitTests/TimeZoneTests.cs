@@ -18,12 +18,13 @@ public class TimeZoneTests : BaseScheduleTests
     public void Schedule_DifferentTimeZones_ShouldRespectTimeZone(string timeZoneId)
     {
         // Arrange
-        var utcClock = CreateClock(2025, 6, 15, 12, 0); // Noon UTC
+        var utcClock = CreateClock(2025, 6, 15, 6, 0); // 6 AM UTC 
         var context = CreateContext(utcClock);
         var timeZone = DateTimeZoneProviders.Tzdb[timeZoneId];
 
+        // Schedule for the next day to ensure it's always in the future
         var schedule = context.CreateBuilder(
-            TestDate(2025, 6, 15),
+            TestDate(2025, 6, 16), // Next day
             TestTime(14, 0), // 2 PM local time
             TestTime(15, 0),
             timeZone)
@@ -209,12 +210,13 @@ public class TimeZoneTests : BaseScheduleTests
     public void Schedule_ExtremeTimeZones_ShouldWork(string timeZoneId, int expectedOffsetHours)
     {
         // Arrange
-        var utcClock = CreateClock(2025, 6, 15, 12, 0); // Noon UTC
+        var utcClock = CreateClock(2025, 6, 15, 0, 0); // Midnight UTC 
         var context = CreateContext(utcClock);
         var timeZone = DateTimeZoneProviders.Tzdb[timeZoneId];
 
+        // Schedule for the next day to ensure it's always in the future
         var schedule = context.CreateBuilder(
-            TestDate(2025, 6, 15),
+            TestDate(2025, 6, 16), // Next day
             TestTime(12, 0), // Noon local time
             TestTime(13, 0),
             timeZone)

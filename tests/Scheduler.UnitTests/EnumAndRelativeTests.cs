@@ -384,7 +384,7 @@ public class EnumAndRelativeTests : BaseScheduleTests
         {
             var monthDiff = Period.Between(
                 upcoming[i].Date.With(DateAdjusters.StartOfMonth), 
-                upcoming[i + 1].Date.With(DateAdjusters.StartOfMonth)).Months;
+                upcoming[i + 1].Date.With(DateAdjusters.StartOfMonth), PeriodUnits.Months).Months;
             Assert.Equal(interval, monthDiff);
         }
     }

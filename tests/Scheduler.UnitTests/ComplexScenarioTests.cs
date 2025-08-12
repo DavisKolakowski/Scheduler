@@ -79,7 +79,7 @@ public class ComplexScenarioTests : BaseScheduleTests
         // Should be every 2 weeks
         for (int i = 0; i < upcoming.Count - 1; i++)
         {
-            var diff = Period.Between(upcoming[i].Date, upcoming[i + 1].Date);
+            var diff = Period.Between(upcoming[i].Date, upcoming[i + 1].Date, PeriodUnits.Days);
             Assert.Equal(14, diff.Days); // 2 weeks = 14 days
         }
     }
@@ -367,7 +367,7 @@ public class ComplexScenarioTests : BaseScheduleTests
         // Verify 3-day intervals
         for (int i = 0; i < upcoming.Count - 1; i++)
         {
-            var diff = Period.Between(upcoming[i].Date, upcoming[i + 1].Date);
+            var diff = Period.Between(upcoming[i].Date, upcoming[i + 1].Date, PeriodUnits.Days);
             Assert.Equal(3, diff.Days);
         }
 
