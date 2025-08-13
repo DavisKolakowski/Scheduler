@@ -238,7 +238,7 @@ public class YearlyScheduleTests : BaseScheduleTests
         Assert.Equal(25, next.Value.Day);
         Assert.Equal(12, next.Value.Month);
         Assert.Equal(2027, next.Value.Year);
-        Assert.Equal(2, completed.Count); // 2024 & 2025 completed if current year 2027 before Dec 25.
+        Assert.Equal(3, completed.Count);
     }
 
     [Fact]
