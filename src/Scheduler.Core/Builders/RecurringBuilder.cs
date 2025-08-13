@@ -12,7 +12,7 @@
     using Scheduler.Core.Models;
     using Scheduler.Core.Models.Schedules.Base;
 
-    public class RecurringBuilder<TModel> where TModel : Schedule
+    public class RecurringBuilder<TModel> where TModel : Frequency
     {
         private readonly TModel _model;
         private readonly IClock _clock;

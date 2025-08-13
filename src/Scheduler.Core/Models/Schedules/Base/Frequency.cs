@@ -7,7 +7,7 @@ namespace Scheduler.Core.Models.Schedules.Base
     using Scheduler.Core.Builders;
     using Scheduler.Core.Contracts;
 
-    public abstract class Schedule
+    public abstract class Frequency
     {
         public LocalDate StartDate { get; internal set; }
         public LocalTime StartTime { get; internal set; }

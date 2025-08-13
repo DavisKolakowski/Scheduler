@@ -9,7 +9,7 @@
     using Scheduler.Core.Models;
     using Scheduler.Core.Models.Schedules.Base;
 
-    public interface ISchedule<out TModel> where TModel : Schedule
+    public interface ISchedule<out TModel> where TModel : Frequency
     {
         /// <summary>
         /// Gets the frequency type of the schedule (e.g., "OneTime", "Daily").

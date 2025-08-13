@@ -18,7 +18,7 @@ namespace Scheduler.Core.Contexts
     using Scheduler.Core.Models.Schedules.Base;
     using Scheduler.Core.Utilities;
 
-    public class ScheduleContext<TModel> : ISchedule<TModel> where TModel : Schedule
+    public class ScheduleContext<TModel> : ISchedule<TModel> where TModel : Frequency
     {
         private readonly IClock _clock;
         private readonly Duration _duration;
@@ -28,7 +28,7 @@ namespace Scheduler.Core.Contexts
         {
             Model = model;
             _clock = clock;
-            Type = model.GetType().Name.Replace(nameof(Schedule), string.Empty);
+            Type = model.GetType().Name.Replace(nameof(Frequency), string.Empty);
             var duration = Period.Between(model.StartTime, model.EndTime, PeriodUnits.Ticks).ToDuration();
             if (duration < Duration.Zero)
             {

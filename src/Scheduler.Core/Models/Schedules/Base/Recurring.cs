@@ -2,7 +2,7 @@ namespace Scheduler.Core.Models.Schedules.Base
 {
     using System;
 
-    public abstract class Recurring : Schedule
+    public abstract class Recurring : Frequency
     {
         private int _interval = 1;
 

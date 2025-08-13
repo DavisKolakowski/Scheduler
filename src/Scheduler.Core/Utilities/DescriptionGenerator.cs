@@ -16,7 +16,7 @@
 
     public static class DescriptionGenerator
     {
-        public static string Generate(Schedule model)
+        public static string Generate(Frequency model)
         {
             return model switch
             {

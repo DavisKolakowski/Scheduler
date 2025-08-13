@@ -248,7 +248,7 @@ public static class ScheduleDemos
         RunDemo("12. Every 2 Years in Jan & Dec on the First Weekend Day", Demo12_Every2YearsOnFirstWeekendDay());
     }
 
-    private static void RunDemo<TModel>(string title, ISchedule<TModel> schedule) where TModel : Schedule
+    private static void RunDemo<TModel>(string title, ISchedule<TModel> schedule) where TModel : Frequency
     {
         Console.WriteLine($"--- {title} ---");
 
