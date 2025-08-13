@@ -80,14 +80,18 @@ namespace Scheduler.Core.Contexts
             }
 
             var searchEnd = CalculateSearchEnd(RequestedAt, maxItems);
+            var searchStart = Model.StartDate.At(Model.StartTime).InZoneStrictly(Model.TimeZone).ToInstant();
+            var occurrences = GetOccurrences(searchStart, searchEnd)
+                .OrderBy(o => o.ToInstant())
+                .ToList();
 
-            var upcoming = GetOccurrences(RequestedAt, searchEnd)
-                           .Where(occ => occ.ToInstant() >= RequestedAt)
-                           .Take(maxItems);
+            var upcoming = occurrences
+                .Where(o => o.ToInstant().Plus(_duration) > RequestedAt)
+                .Take(maxItems);
 
-            foreach (var occurrence in upcoming)
+            foreach (var occ in upcoming)
             {
-                yield return occurrence;
+                yield return occ;
             }
         }
 
@@ -99,34 +103,18 @@ namespace Scheduler.Core.Contexts
 
         private ZonedDateTime? CalculateNextOccurrence()
         {
-            if (Model is OneTime && FirstOccurrence.HasValue)
+            var searchStart = Model.StartDate.At(Model.StartTime).InZoneStrictly(Model.TimeZone).ToInstant();
+            var searchEnd = CalculateSearchEnd(RequestedAt, 2);
+            var occurrences = GetOccurrences(searchStart, searchEnd)
+                .OrderBy(o => o.ToInstant())
+                .ToList();
+
+            var active = occurrences.FirstOrDefault(o => o.ToInstant() <= RequestedAt && o.ToInstant().Plus(_duration) > RequestedAt);
+            if (active != default)
             {
-                var eventStart = FirstOccurrence.Value.ToInstant();
-                var eventEnd = eventStart.Plus(_duration);
-
-                if (eventStart > RequestedAt || (eventStart <= RequestedAt && eventEnd > RequestedAt))
-                {
-                    return FirstOccurrence;
-                }
-
-                return null;
+                return active;
             }
-
-            var searchStart = RequestedAt.Minus(Duration.FromDays(1));
-            var searchEnd = RequestedAt.Plus(Duration.FromSeconds(1));
-
-            var activeOccurrence = GetOccurrences(searchStart, searchEnd)
-                                   .FirstOrDefault(occ => occ.ToInstant() <= RequestedAt && occ.ToInstant().Plus(_duration) > RequestedAt);
-
-            if (activeOccurrence != default)
-            {
-                return activeOccurrence;
-            }
-
-            var futureSearchEnd = CalculateSearchEnd(RequestedAt, 1);
-            var next = GetOccurrences(RequestedAt.Plus(Duration.FromMilliseconds(1)), futureSearchEnd)
-                       .FirstOrDefault();
-
+            var next = occurrences.FirstOrDefault(o => o.ToInstant() > RequestedAt);
             return next == default ? (ZonedDateTime?)null : next;
         }
 
@@ -200,20 +188,31 @@ namespace Scheduler.Core.Contexts
                     }
                     for (var d = dailyDate; d <= searchLimit; d = d.PlusDays(o.Interval))
                     {
-                        yield return d.At(o.StartTime).InZoneStrictly(zone);
+                        var occurrence = d.At(o.StartTime).InZoneStrictly(zone);
+                        if (ZonedDateTime.Comparer.Instant.Compare(occurrence, searchStart) >= 0 &&
+                            ZonedDateTime.Comparer.Instant.Compare(occurrence, searchEnd) <= 0)
+                        {
+                            yield return occurrence;
+                        }
                     }
                     break;
 
                 case Weekly o:
-                    var startOfWeek = Model.StartDate.With(DateAdjusters.PreviousOrSame(IsoDayOfWeek.Monday));
+                    var anchorDay = Model.StartDate.DayOfWeek;
+                    var baseAnchor = Model.StartDate.With(DateAdjusters.PreviousOrSame(anchorDay));
                     for (var d = iterDate; d <= searchLimit; d = d.PlusDays(1))
                     {
-                        var currentStartOfWeek = d.With(DateAdjusters.PreviousOrSame(IsoDayOfWeek.Monday));
-                        var weeksBetween = Period.Between(startOfWeek, currentStartOfWeek, PeriodUnits.Weeks).Weeks;
-
+                        var currentAnchor = d.With(DateAdjusters.PreviousOrSame(anchorDay));
+                        var daysBetween = Period.Between(baseAnchor, currentAnchor, PeriodUnits.Days).Days;
+                        var weeksBetween = daysBetween / 7;
                         if (weeksBetween % o.Interval == 0 && o.DaysOfWeek.Contains((int)d.DayOfWeek))
                         {
-                            yield return d.At(o.StartTime).InZoneStrictly(zone);
+                            var occurrence = d.At(o.StartTime).InZoneStrictly(zone);
+                            if (ZonedDateTime.Comparer.Instant.Compare(occurrence, searchStart) >= 0 &&
+                                ZonedDateTime.Comparer.Instant.Compare(occurrence, searchEnd) <= 0)
+                            {
+                                yield return occurrence;
+                            }
                         }
                     }
                     break;
@@ -247,7 +246,12 @@ namespace Scheduler.Core.Contexts
                         {
                             if (occurrenceDate.HasValue && occurrenceDate.Value >= Model.StartDate && occurrenceDate.Value <= searchLimit)
                             {
-                                yield return occurrenceDate.Value.At(o.StartTime).InZoneStrictly(zone);
+                                var occurrence = occurrenceDate.Value.At(o.StartTime).InZoneStrictly(zone);
+                                if (ZonedDateTime.Comparer.Instant.Compare(occurrence, searchStart) >= 0 &&
+                                    ZonedDateTime.Comparer.Instant.Compare(occurrence, searchEnd) <= 0)
+                                {
+                                    yield return occurrence;
+                                }
                             }
                         }
                     }
@@ -258,8 +262,12 @@ namespace Scheduler.Core.Contexts
                     if (yearlyDate.Year < iterDate.Year)
                     {
                         var yearsSince = iterDate.Year - yearlyDate.Year;
-                        var intervalsSince = (int)Math.Ceiling((double)yearsSince / o.Interval);
+                        var intervalsSince = yearsSince / o.Interval;
                         yearlyDate = yearlyDate.PlusYears(intervalsSince * o.Interval);
+                        if (yearlyDate.Year < iterDate.Year)
+                        {
+                            yearlyDate = yearlyDate.PlusYears(o.Interval);
+                        }
                     }
 
                     for (var y = yearlyDate.Year; y <= searchLimit.Year; y += o.Interval)
@@ -280,7 +288,12 @@ namespace Scheduler.Core.Contexts
                             {
                                 if (occurrenceDate.HasValue && occurrenceDate.Value >= Model.StartDate && occurrenceDate.Value <= searchLimit)
                                 {
-                                    yield return occurrenceDate.Value.At(o.StartTime).InZoneStrictly(zone);
+                                    var occurrence = occurrenceDate.Value.At(o.StartTime).InZoneStrictly(zone);
+                                    if (ZonedDateTime.Comparer.Instant.Compare(occurrence, searchStart) >= 0 &&
+                                        ZonedDateTime.Comparer.Instant.Compare(occurrence, searchEnd) <= 0)
+                                    {
+                                        yield return occurrence;
+                                    }
                                 }
                             }
                         }
