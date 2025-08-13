@@ -1,6 +1,7 @@
 namespace Scheduler.Core.Models.Frequencies.Base
 {
     using System;
+    using NodaTime;
 
     public abstract class Recurring : Frequency
     {
@@ -10,6 +11,11 @@ namespace Scheduler.Core.Models.Frequencies.Base
         {
             get => _interval;
             set => _interval = Math.Max(1, value);
+        }
+
+        public void EndAt(LocalDate endDate)
+        {
+            EndDate = endDate;
         }
     }
 }

@@ -1,11 +1,7 @@
 ﻿namespace Scheduler.Core.Builders
 {
     using System;
-    using System.Reflection;
-
     using NodaTime;
-
-    using Scheduler.Core.Contracts;
     using Scheduler.Core.Models.Frequencies;
 
     public class ScheduleBuilder
@@ -15,36 +11,25 @@
         private readonly LocalTime _startTime;
         private readonly LocalTime _endTime;
         private readonly DateTimeZone _timeZone;
-        private readonly LocalDate? _endDate;
 
         internal ScheduleBuilder(
             IClock clock,
             LocalDate startDate,
             LocalTime startTime,
             LocalTime endTime,
-            DateTimeZone timeZone,
-            LocalDate? endDate)
+            DateTimeZone timeZone)
         {
             _clock = clock;
             _startDate = startDate;
             _startTime = startTime;
             _endTime = endTime;
             _timeZone = timeZone;
-            _endDate = endDate;
         }
 
         public FrequencyBuilder<OneTime> OneTime()
         {
             var model = new OneTime();
-            LocalDate endDate;
-            if (_endTime <= _startTime)
-            {
-                endDate = _startDate.PlusDays(1);
-            }
-            else
-            {
-                endDate = _startDate;
-            }
+            LocalDate endDate = _endTime <= _startTime ? _startDate.PlusDays(1) : _startDate;
             return new FrequencyBuilder<OneTime>(model, _clock, _startDate, _startTime, _endTime, _timeZone, endDate);
         }
 
@@ -52,7 +37,7 @@
         {
             var model = new Daily();
             configure?.Invoke(model);
-            return new FrequencyBuilder<Daily>(model, _clock, _startDate, _startTime, _endTime, _timeZone, _endDate);
+            return new FrequencyBuilder<Daily>(model, _clock, _startDate, _startTime, _endTime, _timeZone, model.EndDate);
         }
 
         public FrequencyBuilder<Weekly> Weekly(Action<Weekly>? configure = null)
@@ -60,7 +45,7 @@
             var model = new Weekly();
             model.Initialize((int)_startDate.DayOfWeek);
             configure?.Invoke(model);
-            return new FrequencyBuilder<Weekly>(model, _clock, _startDate, _startTime, _endTime, _timeZone, _endDate);
+            return new FrequencyBuilder<Weekly>(model, _clock, _startDate, _startTime, _endTime, _timeZone, model.EndDate);
         }
 
         public FrequencyBuilder<Monthly> Monthly(Action<Monthly>? configure = null)
@@ -68,7 +53,7 @@
             var model = new Monthly();
             model.Initialize(_startDate.Day);
             configure?.Invoke(model);
-            return new FrequencyBuilder<Monthly>(model, _clock, _startDate, _startTime, _endTime, _timeZone, _endDate);
+            return new FrequencyBuilder<Monthly>(model, _clock, _startDate, _startTime, _endTime, _timeZone, model.EndDate);
         }
 
         public FrequencyBuilder<Yearly> Yearly(Action<Yearly>? configure = null)
@@ -76,7 +61,7 @@
             var model = new Yearly();
             model.Initialize(_startDate);
             configure?.Invoke(model);
-            return new FrequencyBuilder<Yearly>(model, _clock, _startDate, _startTime, _endTime, _timeZone, _endDate);
+            return new FrequencyBuilder<Yearly>(model, _clock, _startDate, _startTime, _endTime, _timeZone, model.EndDate);
         }
     }
 }

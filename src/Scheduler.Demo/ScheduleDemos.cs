@@ -72,9 +72,8 @@ public static class ScheduleDemos
             new LocalDate(2025, 8, 1),
             new LocalTime(9, 0),
             new LocalTime(17, 0),
-            _tz,
-            new LocalDate(2025, 8, 30))
-            .Daily(o => o.Interval = 3)
+            _tz)
+            .Daily(o => { o.Interval = 3; o.EndAt(new LocalDate(2025, 8, 30)); })
             .Build();
         return schedule;
     }

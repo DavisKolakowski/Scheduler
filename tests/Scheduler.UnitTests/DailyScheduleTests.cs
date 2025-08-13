@@ -63,9 +63,8 @@ public class DailyScheduleTests : BaseScheduleTests
             TestDate(2025, 8, 1),
             TestTime(9, 0),
             TestTime(17, 0),
-            TestTimeZone,
-            TestDate(2025, 8, 5))
-            .Daily()
+            TestTimeZone)
+            .Daily(o => o.EndAt(TestDate(2025, 8, 5)))
             .Build();
 
         var upcoming = schedule.GetUpcomingOccurrences(10).ToList();

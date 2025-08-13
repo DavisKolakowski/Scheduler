@@ -217,9 +217,8 @@ public class WeeklyScheduleTests : BaseScheduleTests
             TestDate(2025, 8, 4),
             TestTime(9, 0),
             TestTime(17, 0),
-            TestTimeZone,
-            TestDate(2025, 8, 15))
-            .Weekly(o => o.UseDaysOfWeek(list => list.AddRange(new[] { 1, 3, 5 })))
+            TestTimeZone)
+            .Weekly(o => { o.UseDaysOfWeek(list => list.AddRange(new[] { 1, 3, 5 })); o.EndAt(TestDate(2025, 8, 15)); })
             .Build();
 
         var upcoming = schedule.GetUpcomingOccurrences(20).ToList();
