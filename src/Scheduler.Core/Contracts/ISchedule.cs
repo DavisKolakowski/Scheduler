@@ -27,24 +27,39 @@
         TimeSpan OccurrenceLength { get; }
 
         /// <summary>
+        /// Gets the first occurrence of the schedule.
+        /// </summary>
+        ZonedDateTime? FirstOccurrence { get; }
+
+        /// <summary>
+        /// Gets the most recent occurrence that happened before the request time.
+        /// </summary>
+        ZonedDateTime? PreviousOccurrence { get; }
+
+        /// <summary>
+        /// Gets the next occurrence that will happen after the request time, or the one currently in progress.
+        /// </summary>
+        ZonedDateTime? NextOccurrence { get; }
+
+        /// <summary>
+        /// Gets the last occurrence of the schedule, if it has an end date.
+        /// </summary>
+        ZonedDateTime? LastOccurrence { get; }
+
+        /// <summary>
         /// Gets the original options used to configure this schedule.
         /// </summary>
         TModel Model { get; }
 
         /// <summary>
-        /// Gets the next occurrence that will happen after the current time, or the one currently in progress.
+        /// Gets the time at which the schedule occurrences are calculated.
         /// </summary>
-        ZonedDateTime? GetNextOccurrence();
-
-        /// <summary>
-        /// Gets the most recent occurrence that happened before the current time.
-        /// </summary>
-        ZonedDateTime? GetPreviousOccurrence();
+        Instant RequestedAt { get; }
 
         /// <summary>
         /// Gets a list of occurrences that have fully completed between the schedule's start and the current time.
         /// </summary>
-        IEnumerable<ZonedDateTime> GetOccurrencesCompleted(int maxItems = 100);
+        IEnumerable<ZonedDateTime> GetCompletedOccurrences(int maxItems = 100);
 
         /// <summary>
         /// Gets a list of upcoming occurrences that are scheduled to happen after the current time.

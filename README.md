@@ -56,9 +56,9 @@ var dailyStandup = context.CreateBuilder(
     .Daily()
     .Build();
 
-// Get next occurrence
-var nextMeeting = meeting.GetNextOccurrence();
-var nextStandup = dailyStandup.GetNextOccurrence();
+// Access occurrence information
+var nextMeeting = meeting.NextOccurrence;
+var nextStandup = dailyStandup.NextOccurrence;
 
 // Get upcoming occurrences
 var upcomingMeetings = dailyStandup.GetUpcomingOccurrences(10);
@@ -263,7 +263,7 @@ var nightShift = context.CreateBuilder(
     .Daily()
     .Build();
 
-Console.WriteLine(nightShift.OccurrenceDuration); // "08:00"
+Console.WriteLine(nightShift.OccurrenceLength); // "08:00"
 ```
 
 ### Working with Occurrences
@@ -274,22 +274,23 @@ var schedule = context.CreateBuilder(startDate, startTime, endTime, timeZone)
     .Weekly()
     .Build();
 
-// Get the next occurrence (including currently active ones)
-var next = schedule.GetNextOccurrence();
-
-// Get the most recent completed occurrence
-var previous = schedule.GetPreviousOccurrence();
+// Access individual occurrence points
+var first = schedule.FirstOccurrence;
+var last = schedule.LastOccurrence;
+var next = schedule.NextOccurrence;
+var previous = schedule.PreviousOccurrence;
 
 // Get upcoming occurrences
 var upcoming = schedule.GetUpcomingOccurrences(10);
 
 // Get completed occurrences (in reverse chronological order)
-var completed = schedule.GetOccurrencesCompleted(5);
+var completed = schedule.GetPreviousOccurrences(5);
 
 // Schedule properties
 Console.WriteLine($"Type: {schedule.Type}");
 Console.WriteLine($"Description: {schedule.Description}");
-Console.WriteLine($"Duration: {schedule.OccurrenceDuration}");
+Console.WriteLine($"Duration: {schedule.OccurrenceLength}");
+Console.WriteLine($"Request Time: {schedule.RequestTime}");
 ```
 
 ## Real-World Examples
@@ -424,7 +425,7 @@ var schedule = context.CreateBuilder(
     .Build();
 
 // Test specific moments in time
-var nextOccurrence = schedule.GetNextOccurrence();
+var nextOccurrence = schedule.NextOccurrence;
 Assert.NotNull(nextOccurrence);
 ```
 
@@ -486,19 +487,23 @@ See [CHANGELOG.md](CHANGELOG.md) for detailed release notes.
 
 ### Core Interfaces
 
-#### `ISchedule<TOptions>`
+#### `ISchedule<TModel>`
 
 ```csharp
-public interface ISchedule<out TOptions> where TOptions : IScheduleOptions
+public interface ISchedule<out TModel> where TModel : Schedule
 {
     string Type { get; }
     string Description { get; }
-    string OccurrenceDuration { get; }
-    TOptions Options { get; }
+    TimeSpan OccurrenceLength { get; }
+    TModel Model { get; }
+    Instant RequestTime { get; }
     
-    ZonedDateTime? GetNextOccurrence();
-    ZonedDateTime? GetPreviousOccurrence();
-    IEnumerable<ZonedDateTime> GetOccurrencesCompleted(int maxItems = 100);
+    ZonedDateTime? FirstOccurrence { get; }
+    ZonedDateTime? LastOccurrence { get; }
+    ZonedDateTime? PreviousOccurrence { get; }
+    ZonedDateTime? NextOccurrence { get; }
+    
+    IEnumerable<ZonedDateTime> GetPreviousOccurrences(int maxItems = 100);
     IEnumerable<ZonedDateTime> GetUpcomingOccurrences(int maxItems = 100);
 }
 ```

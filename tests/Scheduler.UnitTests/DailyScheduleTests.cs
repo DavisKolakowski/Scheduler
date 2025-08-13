@@ -2,7 +2,6 @@ using NodaTime;
 using NodaTime.Testing;
 using Scheduler.Core;
 using Scheduler.Core.Contracts;
-using Scheduler.Core.Options;
 
 namespace Scheduler.UnitTests;
 
@@ -23,11 +22,10 @@ public class DailyScheduleTests : BaseScheduleTests
             .Daily()
             .Build();
 
-        var nextOccurrence = schedule.GetNextOccurrence();
         var upcoming = schedule.GetUpcomingOccurrences(5).ToList();
 
         Assert.Equal("Daily", schedule.Type);
-        Assert.NotNull(nextOccurrence);
+        Assert.NotNull(schedule.NextOccurrence);
         Assert.Equal(5, upcoming.Count);
         
         for (int i = 0; i < upcoming.Count - 1; i++)
@@ -96,11 +94,10 @@ public class DailyScheduleTests : BaseScheduleTests
             .Daily()
             .Build();
 
-        var nextOccurrence = schedule.GetNextOccurrence();
-        var completed = schedule.GetOccurrencesCompleted(5).ToList();
+        var completed = schedule.GetPreviousOccurrences(5).ToList();
 
-        Assert.NotNull(nextOccurrence);
-        Assert.Equal(10, nextOccurrence.Value.Day);
+        Assert.NotNull(schedule.NextOccurrence);
+        Assert.Equal(10, schedule.NextOccurrence.Value.Day);
         Assert.Equal(5, completed.Count);
     }
 
@@ -119,10 +116,8 @@ public class DailyScheduleTests : BaseScheduleTests
             .Daily(o => o.Interval = 3)
             .Build();
 
-        var nextOccurrence = schedule.GetNextOccurrence();
-
-        Assert.NotNull(nextOccurrence);
-        Assert.Equal(10, nextOccurrence.Value.Day);
+        Assert.NotNull(schedule.NextOccurrence);
+        Assert.Equal(10, schedule.NextOccurrence.Value.Day);
     }
 
     [Fact]
@@ -140,10 +135,8 @@ public class DailyScheduleTests : BaseScheduleTests
             .Daily()
             .Build();
 
-        var nextOccurrence = schedule.GetNextOccurrence();
-
-        Assert.NotNull(nextOccurrence);
-        Assert.Equal(1, nextOccurrence.Value.Day);
+        Assert.NotNull(schedule.NextOccurrence);
+        Assert.Equal(1, schedule.NextOccurrence.Value.Day);
     }
 
     [Fact]
@@ -161,13 +154,10 @@ public class DailyScheduleTests : BaseScheduleTests
             .Daily()
             .Build();
 
-        var nextOccurrence = schedule.GetNextOccurrence();
-        var previousOccurrence = schedule.GetPreviousOccurrence();
-
-        Assert.NotNull(nextOccurrence);
-        Assert.NotNull(previousOccurrence);
-        Assert.Equal(2, nextOccurrence.Value.Day);
-        Assert.Equal(1, previousOccurrence.Value.Day);
+        Assert.NotNull(schedule.NextOccurrence);
+        Assert.NotNull(schedule.PreviousOccurrence);
+        Assert.Equal(2, schedule.NextOccurrence.Value.Day);
+        Assert.Equal(1, schedule.PreviousOccurrence.Value.Day);
     }
 
     [Fact]

@@ -3,7 +3,6 @@ using NodaTime.Testing;
 using Scheduler.Core;
 using Scheduler.Core.Contracts;
 using Scheduler.Core.Enums;
-using Scheduler.Core.Options;
 
 namespace Scheduler.UnitTests;
 
@@ -28,11 +27,9 @@ public class TimeZoneTests : BaseScheduleTests
             timeZone)
             .Build();
 
-        var nextOccurrence = schedule.GetNextOccurrence();
-
-        Assert.NotNull(nextOccurrence);
-        Assert.Equal(timeZone, nextOccurrence.Value.Zone);
-        Assert.Equal(14, nextOccurrence.Value.Hour);
+        Assert.NotNull(schedule.NextOccurrence);
+        Assert.Equal(timeZone, schedule.NextOccurrence.Value.Zone);
+        Assert.Equal(14, schedule.NextOccurrence.Value.Hour);
     }
 
     [Fact]
@@ -55,12 +52,9 @@ public class TimeZoneTests : BaseScheduleTests
             DateTimeZoneProviders.Tzdb["America/New_York"])
             .Build();
 
-        var utcNext = utcSchedule.GetNextOccurrence();
-        var nyNext = nySchedule.GetNextOccurrence();
-
-        Assert.NotNull(utcNext);
-        Assert.NotNull(nyNext);
-        Assert.Equal(utcNext.Value.ToInstant(), nyNext.Value.ToInstant());
+        Assert.NotNull(utcSchedule.NextOccurrence);
+        Assert.NotNull(nySchedule.NextOccurrence);
+        Assert.Equal(utcSchedule.NextOccurrence.Value.ToInstant(), nySchedule.NextOccurrence.Value.ToInstant());
     }
 
     [Fact]
@@ -77,9 +71,7 @@ public class TimeZoneTests : BaseScheduleTests
             easternTime)
             .Build();
 
-        var nextOccurrence = schedule.GetNextOccurrence();
-        
-        Assert.NotNull(nextOccurrence);
+        Assert.NotNull(schedule.NextOccurrence);
     }
 
     [Fact]
@@ -96,9 +88,7 @@ public class TimeZoneTests : BaseScheduleTests
             easternTime)
             .Build();
 
-        var nextOccurrence = schedule.GetNextOccurrence();
-        
-        Assert.NotNull(nextOccurrence);
+        Assert.NotNull(schedule.NextOccurrence);
     }
 
     [Fact]
@@ -199,11 +189,9 @@ public class TimeZoneTests : BaseScheduleTests
             timeZone)
             .Build();
 
-        var nextOccurrence = schedule.GetNextOccurrence();
-
-        Assert.NotNull(nextOccurrence);
-        Assert.Equal(timeZone, nextOccurrence.Value.Zone);
-        Assert.Equal(12, nextOccurrence.Value.Hour);
+        Assert.NotNull(schedule.NextOccurrence);
+        Assert.Equal(timeZone, schedule.NextOccurrence.Value.Zone);
+        Assert.Equal(12, schedule.NextOccurrence.Value.Hour);
     }
 
     [Fact]
@@ -272,11 +260,9 @@ public class TimeZoneTests : BaseScheduleTests
             easternTime)
             .Build();
 
-        var nextOccurrence = schedule.GetNextOccurrence();
+        Assert.NotNull(schedule.NextOccurrence);
         
-        Assert.NotNull(nextOccurrence);
-        
-        var duration = schedule.OccurrenceDuration;
+        var duration = schedule.OccurrenceLength;
         Assert.NotNull(duration);
     }
 }

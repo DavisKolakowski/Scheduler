@@ -21,7 +21,6 @@ namespace Scheduler.Core.Contexts
     public class ScheduleContext<TModel> : ISchedule<TModel> where TModel : Schedule
     {
         private readonly IClock _clock;
-        private readonly ZonedDateTime _firstOccurrence;
         private readonly Duration _duration;
         private readonly ZonedDateTime? _expiration;
 
@@ -30,83 +29,35 @@ namespace Scheduler.Core.Contexts
             Model = model;
             _clock = clock;
             Type = model.GetType().Name.Replace(nameof(Schedule), string.Empty);
-            _firstOccurrence = model.StartDate.At(model.StartTime).InZone(model.TimeZone, Resolvers.LenientResolver);
             _duration = Period.Between(model.StartTime, model.EndTime, PeriodUnits.Ticks).ToDuration();
             Description = DescriptionGenerator.Generate(Model);
             _expiration = CalculateExpiration();
+            FirstOccurrence = CalculateFirstOccurrence();
+            PreviousOccurrence = CalculatePreviousOccurrence();
+            NextOccurrence = CalculateNextOccurrence();
+            LastOccurrence = CalculateLastOccurrence();
+            RequestedAt = _clock.GetCurrentInstant();
         }
 
         public string Type { get; }
         public string Description { get; }
         public TimeSpan OccurrenceLength => FormatDuration(_duration);
+        public ZonedDateTime? FirstOccurrence { get; }       
+        public ZonedDateTime? PreviousOccurrence { get; }
+        public ZonedDateTime? NextOccurrence { get; }
+        public ZonedDateTime? LastOccurrence { get; }
         public TModel Model { get; }
+        public Instant RequestedAt { get; }
 
-        public ZonedDateTime? GetNextOccurrence()
+        public IEnumerable<ZonedDateTime> GetCompletedOccurrences(int maxItems = 100)
         {
-            var now = _clock.GetCurrentInstant();
-
-            if (Model is OneTime)
+            if (maxItems <= 0 || !FirstOccurrence.HasValue)
             {
-                var eventStart = _firstOccurrence.ToInstant();
-                var eventEnd = eventStart.Plus(_duration);
-
-                if (eventStart > now || eventStart <= now && eventEnd > now)
-                {
-                    return _firstOccurrence;
-                }
-
-                return null;
+                yield break;
             }
 
-            var searchStart = now.Minus(Duration.FromDays(1));
-            var searchEnd = now.Plus(Duration.FromSeconds(1));
-
-            var activeOccurrence = GetOccurrences(searchStart, searchEnd)
-                                   .FirstOrDefault(occ => occ.ToInstant() <= now && occ.ToInstant().Plus(_duration) > now);
-
-            if (activeOccurrence != default)
-            {
-                return activeOccurrence;
-            }
-
-            var futureSearchEnd = CalculateSearchEnd(now, 1);
-            var next = GetOccurrences(now.Plus(Duration.FromMilliseconds(1)), futureSearchEnd)
-                       .FirstOrDefault();
-
-            return next == default ? (ZonedDateTime?)null : next;
-        }
-
-        public ZonedDateTime? GetPreviousOccurrence()
-        {
-            var now = _clock.GetCurrentInstant();
-
-            if (Model is OneTime)
-            {
-                var eventStart = _firstOccurrence.ToInstant();
-                var eventEnd = eventStart.Plus(_duration);
-
-                if (eventEnd <= now)
-                {
-                    return _firstOccurrence;
-                }
-
-                return null;
-            }
-
-            var previous = GetOccurrences(_firstOccurrence.ToInstant(), now)
-                           .LastOrDefault(occ => occ.ToInstant().Plus(_duration) <= now);
-
-            return previous == default ? (ZonedDateTime?)null : previous;
-        }
-
-        public IEnumerable<ZonedDateTime> GetOccurrencesCompleted(int maxItems = 100)
-        {
-            if (maxItems <= 0) yield break;
-
-            var now = _clock.GetCurrentInstant();
-
-            var completed = GetOccurrences(_firstOccurrence.ToInstant(), now)
-                           .Where(occ => occ.ToInstant().Plus(_duration) <= now)
+            var completed = GetOccurrences(FirstOccurrence.Value.ToInstant(), RequestedAt)
+                           .Where(occ => occ.ToInstant().Plus(_duration) <= RequestedAt)
                            .Reverse()
                            .Take(maxItems);
 
@@ -120,11 +71,10 @@ namespace Scheduler.Core.Contexts
         {
             if (maxItems <= 0) yield break;
 
-            var now = _clock.GetCurrentInstant();
-            var searchEnd = CalculateSearchEnd(now, maxItems);
+            var searchEnd = CalculateSearchEnd(RequestedAt, maxItems);
 
-            var upcoming = GetOccurrences(now, searchEnd)
-                           .Where(occ => occ.ToInstant() >= now)
+            var upcoming = GetOccurrences(RequestedAt, searchEnd)
+                           .Where(occ => occ.ToInstant() >= RequestedAt)
                            .Take(maxItems);
 
             foreach (var occurrence in upcoming)
@@ -133,9 +83,87 @@ namespace Scheduler.Core.Contexts
             }
         }
 
+        private ZonedDateTime? CalculateFirstOccurrence()
+        {
+            var start = Model.StartDate.At(Model.StartTime).InZoneStrictly(Model.TimeZone);
+            return GetOccurrences(start.ToInstant(), CalculateSearchEnd(start.ToInstant(), 1)).FirstOrDefault();
+        }
+
+        private ZonedDateTime? CalculateNextOccurrence()
+        {
+            if (Model is OneTime && FirstOccurrence.HasValue)
+            {
+                var eventStart = FirstOccurrence.Value.ToInstant();
+                var eventEnd = eventStart.Plus(_duration);
+
+                if (eventStart > RequestedAt || (eventStart <= RequestedAt && eventEnd > RequestedAt))
+                {
+                    return FirstOccurrence;
+                }
+
+                return null;
+            }
+
+            var searchStart = RequestedAt.Minus(Duration.FromDays(1));
+            var searchEnd = RequestedAt.Plus(Duration.FromSeconds(1));
+
+            var activeOccurrence = GetOccurrences(searchStart, searchEnd)
+                                   .FirstOrDefault(occ => occ.ToInstant() <= RequestedAt && occ.ToInstant().Plus(_duration) > RequestedAt);
+
+            if (activeOccurrence != default)
+            {
+                return activeOccurrence;
+            }
+
+            var futureSearchEnd = CalculateSearchEnd(RequestedAt, 1);
+            var next = GetOccurrences(RequestedAt.Plus(Duration.FromMilliseconds(1)), futureSearchEnd)
+                       .FirstOrDefault();
+
+            return next == default ? (ZonedDateTime?)null : next;
+        }
+
+        private ZonedDateTime? CalculatePreviousOccurrence()
+        {
+            if (!FirstOccurrence.HasValue) return null;
+
+            if (Model is OneTime)
+            {
+                var eventStart = FirstOccurrence.Value.ToInstant();
+                var eventEnd = eventStart.Plus(_duration);
+
+                if (eventEnd <= RequestedAt)
+                {
+                    return FirstOccurrence;
+                }
+
+                return null;
+            }
+
+            var previous = GetOccurrences(FirstOccurrence.Value.ToInstant(), RequestedAt)
+                           .LastOrDefault(occ => occ.ToInstant().Plus(_duration) <= RequestedAt);
+
+            return previous == default ? (ZonedDateTime?)null : previous;
+        }
+
+        private ZonedDateTime? CalculateLastOccurrence()
+        {
+            if (!Model.EndDate.HasValue)
+            {
+                return null;
+            }
+
+            var expiration = Model.EndDate.Value.At(Model.EndTime).InZoneStrictly(Model.TimeZone);
+            var searchStart = Model.StartDate.At(Model.StartTime).InZoneStrictly(Model.TimeZone).ToInstant();
+
+            return GetOccurrences(searchStart, expiration.ToInstant().Plus(Duration.FromSeconds(1))).LastOrDefault();
+        }
+
         private IEnumerable<ZonedDateTime> GetOccurrences(Instant start, Instant end)
         {
-            if (end <= start) yield break;
+            if (end <= start)
+            {
+                yield break;
+            }
             
             var zone = Model.TimeZone;
             var searchStart = start.InZone(zone);
@@ -146,7 +174,7 @@ namespace Scheduler.Core.Contexts
             switch (Model)
             {
                 case OneTime o:
-                    var oneTimeZdt = o.StartDate.At(o.StartTime).InZone(zone, Resolvers.LenientResolver);
+                    var oneTimeZdt = o.StartDate.At(o.StartTime).InZoneStrictly(zone);
                     if (ZonedDateTime.Comparer.Instant.Compare(oneTimeZdt, searchStart) >= 0 && 
                         ZonedDateTime.Comparer.Instant.Compare(oneTimeZdt, searchEnd) <= 0)
                     {
@@ -164,7 +192,7 @@ namespace Scheduler.Core.Contexts
                     }
                     for (var d = dailyDate; d <= searchLimit; d = d.PlusDays(o.Interval))
                     {
-                        yield return d.At(o.StartTime).InZone(zone, Resolvers.LenientResolver);
+                        yield return d.At(o.StartTime).InZoneStrictly(zone);
                     }
                     break;
 
@@ -177,7 +205,7 @@ namespace Scheduler.Core.Contexts
 
                         if (weeksBetween % o.Interval == 0 && o.DaysOfWeek.Contains((int)d.DayOfWeek))
                         {
-                            yield return d.At(o.StartTime).InZone(zone, Resolvers.LenientResolver);
+                            yield return d.At(o.StartTime).InZoneStrictly(zone);
                         }
                     }
                     break;
@@ -192,7 +220,10 @@ namespace Scheduler.Core.Contexts
                     for (var d = monthlyDate; d <= searchLimit; d = d.PlusMonths(o.Interval))
                     {
                         var monthsBetween = Period.Between(Model.StartDate.With(DateAdjusters.StartOfMonth), d, PeriodUnits.Months).Months;
-                        if (monthsBetween % o.Interval != 0) continue;
+                        if (monthsBetween % o.Interval != 0)
+                        {
+                            continue;
+                        }
 
                         IEnumerable<LocalDate?> occurrencesInMonth;
                         if (o.IsRelative && o.Relative.HasValue)
@@ -208,7 +239,7 @@ namespace Scheduler.Core.Contexts
                         {
                             if (occurrenceDate.HasValue && occurrenceDate.Value >= Model.StartDate && occurrenceDate.Value <= searchLimit)
                             {
-                                yield return occurrenceDate.Value.At(o.StartTime).InZone(zone, Resolvers.LenientResolver);
+                                yield return occurrenceDate.Value.At(o.StartTime).InZoneStrictly(zone);
                             }
                         }
                     }
@@ -241,7 +272,7 @@ namespace Scheduler.Core.Contexts
                             {
                                 if (occurrenceDate.HasValue && occurrenceDate.Value >= Model.StartDate && occurrenceDate.Value <= searchLimit)
                                 {
-                                    yield return occurrenceDate.Value.At(o.StartTime).InZone(zone, Resolvers.LenientResolver);
+                                    yield return occurrenceDate.Value.At(o.StartTime).InZoneStrictly(zone);
                                 }
                             }
                         }
@@ -323,9 +354,15 @@ namespace Scheduler.Core.Contexts
             }
 
             var candidateList = candidates.ToList();
-            if (!candidateList.Any()) return null;
+            if (!candidateList.Any())
+            {
+                return null;
+            }
 
-            if (relative.Index == RelativeIndex.Last) return candidateList.LastOrDefault();
+            if (relative.Index == RelativeIndex.Last)
+            {
+                return candidateList.LastOrDefault();
+            }
 
             int index = (int)relative.Index - 1;
             return index < candidateList.Count ? candidateList[index] : (LocalDate?)null;
@@ -333,8 +370,14 @@ namespace Scheduler.Core.Contexts
 
         private LocalDate? TryCreateDate(int year, int month, int day)
         {
-            try { return new LocalDate(year, month, day); }
-            catch (ArgumentOutOfRangeException) { return null; }
+            try 
+            { 
+                return new LocalDate(year, month, day); 
+            }
+            catch (ArgumentOutOfRangeException) 
+            { 
+                return null; 
+            }
         }
 
         private T Min<T>(T a, T b) where T : IComparable<T> => a.CompareTo(b) < 0 ? a : b;
@@ -346,16 +389,16 @@ namespace Scheduler.Core.Contexts
             {
                 if (Model.EndTime.CompareTo(Model.StartTime) <= 0)
                 {
-                    return Model.StartDate.PlusDays(1).At(Model.EndTime).InZone(Model.TimeZone, Resolvers.LenientResolver);
+                    return Model.StartDate.PlusDays(1).At(Model.EndTime).InZoneStrictly(Model.TimeZone);
                 }
                 else
                 {
-                    return Model.StartDate.At(Model.EndTime).InZone(Model.TimeZone, Resolvers.LenientResolver);
+                    return Model.StartDate.At(Model.EndTime).InZoneStrictly(Model.TimeZone);
                 }
             }
             if (Model.EndDate.HasValue)
             {
-                return Model.EndDate.Value.At(Model.EndTime).InZone(Model.TimeZone, Resolvers.LenientResolver);
+                return Model.EndDate.Value.At(Model.EndTime).InZoneStrictly(Model.TimeZone);
             }
             return null;
         }

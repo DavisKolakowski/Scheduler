@@ -22,14 +22,12 @@ public class OneTimeScheduleTests : BaseScheduleTests
             .OneTime()
             .Build();
 
-        var nextOccurrence = schedule.GetNextOccurrence();
-        var previousOccurrence = schedule.GetPreviousOccurrence();
         var upcoming = schedule.GetUpcomingOccurrences(5).ToList();
-        var completed = schedule.GetOccurrencesCompleted(5).ToList();
+        var completed = schedule.GetCompletedOccurrences(5).ToList();
 
         Assert.Equal("OneTime", schedule.Type);
-        Assert.NotNull(nextOccurrence);
-        Assert.Null(previousOccurrence);
+        Assert.NotNull(schedule.NextOccurrence);
+        Assert.Null(schedule.PreviousOccurrence);
         Assert.Single(upcoming);
         Assert.Empty(completed);
     }
@@ -48,13 +46,11 @@ public class OneTimeScheduleTests : BaseScheduleTests
             .OneTime()
             .Build();
 
-        var nextOccurrence = schedule.GetNextOccurrence();
-        var previousOccurrence = schedule.GetPreviousOccurrence();
         var upcoming = schedule.GetUpcomingOccurrences(5).ToList();
-        var completed = schedule.GetOccurrencesCompleted(5).ToList();
+        var completed = schedule.GetCompletedOccurrences(5).ToList();
 
-        Assert.Null(nextOccurrence);
-        Assert.NotNull(previousOccurrence);
+        Assert.Null(schedule.NextOccurrence);
+        Assert.NotNull(schedule.PreviousOccurrence);
         Assert.Empty(upcoming);
         Assert.Single(completed);
     }
@@ -73,11 +69,8 @@ public class OneTimeScheduleTests : BaseScheduleTests
             .OneTime()
             .Build();
 
-        var nextOccurrence = schedule.GetNextOccurrence();
-        var previousOccurrence = schedule.GetPreviousOccurrence();
-
-        Assert.NotNull(nextOccurrence);
-        Assert.Null(previousOccurrence);
+        Assert.NotNull(schedule.NextOccurrence);
+        Assert.Null(schedule.PreviousOccurrence);
     }
 
     [Fact]
@@ -94,11 +87,10 @@ public class OneTimeScheduleTests : BaseScheduleTests
             .OneTime()
             .Build();
 
-        var nextOccurrence = schedule.GetNextOccurrence();
         var occurrenceDuration = schedule.OccurrenceLength;
 
-        Assert.NotNull(nextOccurrence);
-        Assert.Equal("04:00", occurrenceDuration);
+        Assert.NotNull(schedule.NextOccurrence);
+        Assert.Equal(TimeSpan.FromHours(4), occurrenceDuration);
     }
 
     [Fact]
@@ -123,11 +115,8 @@ public class OneTimeScheduleTests : BaseScheduleTests
             .OneTime()
             .Build();
 
-        var nyNext = nySchedule.GetNextOccurrence();
-        var laNext = laSchedule.GetNextOccurrence();
-
-        Assert.NotNull(nyNext);
-        Assert.NotNull(laNext);
+        Assert.NotNull(nySchedule.NextOccurrence);
+        Assert.NotNull(laSchedule.NextOccurrence);
     }
 
     [Fact]
@@ -167,7 +156,7 @@ public class OneTimeScheduleTests : BaseScheduleTests
 
         var duration = schedule.OccurrenceLength;
 
-        Assert.Equal("00:00", duration);
+        Assert.Equal(TimeSpan.Zero, duration);
     }
 
     [Fact]
@@ -184,10 +173,8 @@ public class OneTimeScheduleTests : BaseScheduleTests
             .OneTime()
             .Build();
 
-        var nextOccurrence = schedule.GetNextOccurrence();
-
-        Assert.NotNull(nextOccurrence);
-        Assert.Equal(29, nextOccurrence.Value.Day);
+        Assert.NotNull(schedule.NextOccurrence);
+        Assert.Equal(29, schedule.NextOccurrence.Value.Day);
     }
 
     [Theory]
@@ -207,8 +194,6 @@ public class OneTimeScheduleTests : BaseScheduleTests
             .OneTime()
             .Build();
 
-        var nextOccurrence = schedule.GetNextOccurrence();
-
-        Assert.NotNull(nextOccurrence);
+        Assert.NotNull(schedule.NextOccurrence);
     }
 }

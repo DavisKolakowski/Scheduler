@@ -264,11 +264,6 @@ public static class ScheduleDemos
         Console.WriteLine(json);
 
         Console.WriteLine("--- Query Results ---");
-        var current = schedule.GetNextOccurrence();
-        Console.WriteLine($"GetNextOccurrence():    {(current.HasValue ? current.Value.ToString("G", null) : "null")}");
-
-        var previous = schedule.GetPreviousOccurrence();
-        Console.WriteLine($"GetPreviousOccurrence():   {(previous.HasValue ? previous.Value.ToString("G", null) : "null")}");
 
         Console.WriteLine("GetUpcomingOccurrences(3):");
         var upcoming = schedule.GetUpcomingOccurrences(3).ToList();
@@ -281,8 +276,8 @@ public static class ScheduleDemos
             Console.WriteLine("  (none)");
         }
 
-        Console.WriteLine("GetOccurrencesCompleted(3):");
-        var completed = schedule.GetOccurrencesCompleted(3).ToList();
+        Console.WriteLine("GetCompletedOccurrences(3):");
+        var completed = schedule.GetCompletedOccurrences(3).ToList();
         if (completed.Any())
         {
             foreach (var occ in completed) { Console.WriteLine($"  - {occ:G}"); }
