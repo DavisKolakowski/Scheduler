@@ -1,4 +1,6 @@
-﻿namespace Scheduler.Core.Models
+﻿using Scheduler.Core.Models;
+
+namespace Scheduler.Core.Contexts
 {
     using System;
     using System.Collections.Generic;
@@ -12,42 +14,43 @@
 
     using Scheduler.Core.Contracts;
     using Scheduler.Core.Enums;
-    using Scheduler.Core.Options;
+    using Scheduler.Core.Models.Schedules;
+    using Scheduler.Core.Models.Schedules.Base;
     using Scheduler.Core.Utilities;
 
-    public class Schedule<TOptions> : ISchedule<TOptions> where TOptions : IScheduleOptions
+    public class ScheduleContext<TModel> : ISchedule<TModel> where TModel : Schedule
     {
         private readonly IClock _clock;
         private readonly ZonedDateTime _firstOccurrence;
         private readonly Duration _occurrenceDuration;
         private readonly ZonedDateTime? _expiration;
 
-        public Schedule(TOptions options, IClock clock)
+        public ScheduleContext(TModel model, IClock clock)
         {
-            Options = options;
+            Model = model;
             _clock = clock;
-            Type = options.GetType().Name.Replace("Options", string.Empty);
-            _firstOccurrence = options.StartDate.At(options.StartTime).InZone(options.TimeZone, Resolvers.LenientResolver);
-            _occurrenceDuration = Period.Between(options.StartTime, options.EndTime, PeriodUnits.Ticks).ToDuration();
-            Description = DescriptionGenerator.Generate(Options);
+            Type = model.GetType().Name.Replace("Schedule", string.Empty);
+            _firstOccurrence = model.StartDate.At(model.StartTime).InZone(model.TimeZone, Resolvers.LenientResolver);
+            _occurrenceDuration = Period.Between(model.StartTime, model.EndTime, PeriodUnits.Ticks).ToDuration();
+            Description = DescriptionGenerator.Generate(Model);
             _expiration = CalculateExpiration();
         }
 
         public string Type { get; }
         public string Description { get; }
         public string OccurrenceDuration => FormatDuration(_occurrenceDuration);
-        public TOptions Options { get; }
+        public TModel Model { get; }
 
         public ZonedDateTime? GetNextOccurrence()
         {
             var now = _clock.GetCurrentInstant();
 
-            if (Options is OneTimeOptions)
+            if (Model is OneTime)
             {
                 var eventStart = _firstOccurrence.ToInstant();
                 var eventEnd = eventStart.Plus(_occurrenceDuration);
 
-                if (eventStart > now || (eventStart <= now && eventEnd > now))
+                if (eventStart > now || eventStart <= now && eventEnd > now)
                 {
                     return _firstOccurrence;
                 }
@@ -77,7 +80,7 @@
         {
             var now = _clock.GetCurrentInstant();
 
-            if (Options is OneTimeOptions)
+            if (Model is OneTime)
             {
                 var eventStart = _firstOccurrence.ToInstant();
                 var eventEnd = eventStart.Plus(_occurrenceDuration);
@@ -134,15 +137,15 @@
         {
             if (end <= start) yield break;
             
-            var zone = Options.TimeZone;
+            var zone = Model.TimeZone;
             var searchStart = start.InZone(zone);
             var searchEnd = end.InZone(zone);
-            var searchLimit = Options.EndDate.HasValue ? Min(searchEnd.Date, Options.EndDate.Value) : searchEnd.Date;
-            var iterDate = Max(searchStart.Date, Options.StartDate);
+            var searchLimit = Model.EndDate.HasValue ? Min(searchEnd.Date, Model.EndDate.Value) : searchEnd.Date;
+            var iterDate = Max(searchStart.Date, Model.StartDate);
 
-            switch (Options)
+            switch (Model)
             {
-                case OneTimeOptions o:
+                case OneTime o:
                     var oneTimeZdt = o.StartDate.At(o.StartTime).InZone(zone, Resolvers.LenientResolver);
                     if (ZonedDateTime.Comparer.Instant.Compare(oneTimeZdt, searchStart) >= 0 && 
                         ZonedDateTime.Comparer.Instant.Compare(oneTimeZdt, searchEnd) <= 0)
@@ -151,13 +154,13 @@
                     }
                     break;
 
-                case DailyOptions o:
-                    var dailyDate = Options.StartDate;
+                case Daily o:
+                    var dailyDate = Model.StartDate;
                     if (dailyDate < iterDate)
                     {
                         var periodsSince = Period.Between(dailyDate, iterDate, PeriodUnits.Days).Days;
                         var intervalsSince = (int)Math.Ceiling((double)periodsSince / o.Interval);
-                        dailyDate = Options.StartDate.PlusDays(intervalsSince * o.Interval);
+                        dailyDate = Model.StartDate.PlusDays(intervalsSince * o.Interval);
                     }
                     for (var d = dailyDate; d <= searchLimit; d = d.PlusDays(o.Interval))
                     {
@@ -165,8 +168,8 @@
                     }
                     break;
 
-                case WeeklyOptions o:
-                    var startOfWeek = Options.StartDate.With(DateAdjusters.PreviousOrSame(IsoDayOfWeek.Monday));
+                case Weekly o:
+                    var startOfWeek = Model.StartDate.With(DateAdjusters.PreviousOrSame(IsoDayOfWeek.Monday));
                     for (var d = iterDate; d <= searchLimit; d = d.PlusDays(1))
                     {
                         var currentStartOfWeek = d.With(DateAdjusters.PreviousOrSame(IsoDayOfWeek.Monday));
@@ -179,16 +182,16 @@
                     }
                     break;
 
-                case MonthlyOptions o:
+                case Monthly o:
                     var monthlyDate = new LocalDate(iterDate.Year, iterDate.Month, 1);
-                    if (Options.StartDate.Year > monthlyDate.Year || (Options.StartDate.Year == monthlyDate.Year && Options.StartDate.Month > monthlyDate.Month))
+                    if (Model.StartDate.Year > monthlyDate.Year || Model.StartDate.Year == monthlyDate.Year && Model.StartDate.Month > monthlyDate.Month)
                     {
-                        monthlyDate = new LocalDate(Options.StartDate.Year, Options.StartDate.Month, 1);
+                        monthlyDate = new LocalDate(Model.StartDate.Year, Model.StartDate.Month, 1);
                     }
 
                     for (var d = monthlyDate; d <= searchLimit; d = d.PlusMonths(o.Interval))
                     {
-                        var monthsBetween = Period.Between(Options.StartDate.With(DateAdjusters.StartOfMonth), d, PeriodUnits.Months).Months;
+                        var monthsBetween = Period.Between(Model.StartDate.With(DateAdjusters.StartOfMonth), d, PeriodUnits.Months).Months;
                         if (monthsBetween % o.Interval != 0) continue;
 
                         IEnumerable<LocalDate?> occurrencesInMonth;
@@ -203,7 +206,7 @@
 
                         foreach (var occurrenceDate in occurrencesInMonth)
                         {
-                            if (occurrenceDate.HasValue && occurrenceDate.Value >= Options.StartDate && occurrenceDate.Value <= searchLimit)
+                            if (occurrenceDate.HasValue && occurrenceDate.Value >= Model.StartDate && occurrenceDate.Value <= searchLimit)
                             {
                                 yield return occurrenceDate.Value.At(o.StartTime).InZone(zone, Resolvers.LenientResolver);
                             }
@@ -211,8 +214,8 @@
                     }
                     break;
 
-                case YearlyOptions o:
-                    var yearlyDate = Options.StartDate;
+                case Yearly o:
+                    var yearlyDate = Model.StartDate;
                     if (yearlyDate.Year < iterDate.Year)
                     {
                         var yearsSince = iterDate.Year - yearlyDate.Year;
@@ -236,7 +239,7 @@
 
                             foreach (var occurrenceDate in occurrencesInMonth)
                             {
-                                if (occurrenceDate.HasValue && occurrenceDate.Value >= Options.StartDate && occurrenceDate.Value <= searchLimit)
+                                if (occurrenceDate.HasValue && occurrenceDate.Value >= Model.StartDate && occurrenceDate.Value <= searchLimit)
                                 {
                                     yield return occurrenceDate.Value.At(o.StartTime).InZone(zone, Resolvers.LenientResolver);
                                 }
@@ -254,26 +257,26 @@
                 return _expiration.Value.ToInstant();
             }
 
-            switch (Options)
+            switch (Model)
             {
-                case OneTimeOptions _:
+                case OneTime _:
                     return now.Plus(Duration.FromDays(1));
 
-                case DailyOptions daily:
+                case Daily daily:
                     var daysAhead = maxItems * daily.Interval;
                     return now.Plus(Duration.FromDays(daysAhead + 1));
 
-                case WeeklyOptions weekly:
+                case Weekly weekly:
                     var weeksNeeded = Math.Max(1, maxItems / Math.Max(1, weekly.DaysOfWeek.Count));
                     var weeksAhead = weeksNeeded * weekly.Interval;
                     return now.Plus(Duration.FromDays(weeksAhead * 7 + 7));
 
-                case MonthlyOptions monthly:
+                case Monthly monthly:
                     var monthsNeeded = Math.Max(1, maxItems / Math.Max(1, monthly.DaysOfMonth.Count));
                     var monthsAhead = monthsNeeded * monthly.Interval;
                     return now.Plus(Duration.FromDays(monthsAhead * 32 + 32));
 
-                case YearlyOptions yearly:
+                case Yearly yearly:
                     var occurrencesPerYear = yearly.Months.Count * Math.Max(1, yearly.DaysOfMonth.Count);
                     if (yearly.IsRelative) occurrencesPerYear = yearly.Months.Count;
                     
@@ -339,20 +342,20 @@
 
         private ZonedDateTime? CalculateExpiration()
         {
-            if (Options is OneTimeOptions)
+            if (Model is OneTime)
             {
-                if (Options.EndTime.CompareTo(Options.StartTime) <= 0)
+                if (Model.EndTime.CompareTo(Model.StartTime) <= 0)
                 {
-                    return Options.StartDate.PlusDays(1).At(Options.EndTime).InZone(Options.TimeZone, Resolvers.LenientResolver);
+                    return Model.StartDate.PlusDays(1).At(Model.EndTime).InZone(Model.TimeZone, Resolvers.LenientResolver);
                 }
                 else
                 {
-                    return Options.StartDate.At(Options.EndTime).InZone(Options.TimeZone, Resolvers.LenientResolver);
+                    return Model.StartDate.At(Model.EndTime).InZone(Model.TimeZone, Resolvers.LenientResolver);
                 }
             }
-            if (Options.EndDate.HasValue)
+            if (Model.EndDate.HasValue)
             {
-                return Options.EndDate.Value.At(Options.EndTime).InZone(Options.TimeZone, Resolvers.LenientResolver);
+                return Model.EndDate.Value.At(Model.EndTime).InZone(Model.TimeZone, Resolvers.LenientResolver);
             }
             return null;
         }

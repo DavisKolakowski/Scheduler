@@ -5,30 +5,50 @@
     using System.Text;
     using System.Threading.Tasks;
 
+    using NodaTime;
+
+    using Scheduler.Core.Contexts;
     using Scheduler.Core.Contracts;
     using Scheduler.Core.Models;
-    using Scheduler.Core.Options;
+    using Scheduler.Core.Models.Schedules.Base;
 
-    public class RecurringFrequencyOptionsBuilder<T> where T : RecurringOptions
+    public class RecurringBuilder<TModel> where TModel : Schedule
     {
-        private readonly T _options;
-        private readonly ScheduleContextOptions _contextOptions;
+        private readonly TModel _model;
+        private readonly IClock _clock;
+        private readonly LocalDate _startDate;
+        private readonly LocalTime _startTime;
+        private readonly LocalTime _endTime;
+        private readonly DateTimeZone _timeZone;
+        private readonly LocalDate? _endDate;
 
-        internal RecurringFrequencyOptionsBuilder(T options, ScheduleContextOptions contextOptions)
+        internal RecurringBuilder(
+            TModel model,
+            IClock clock,
+            LocalDate startDate,
+            LocalTime startTime,
+            LocalTime endTime,
+            DateTimeZone timeZone,
+            LocalDate? endDate)
         {
-            _options = options;
-            _contextOptions = contextOptions;
+            _model = model;
+            _clock = clock;
+            _startDate = startDate;
+            _startTime = startTime;
+            _endTime = endTime;
+            _timeZone = timeZone;
+            _endDate = endDate;
         }
 
-        public ISchedule<T> Build()
+        public ISchedule<TModel> Build()
         {
-            _options.StartDate = _contextOptions.StartDate;
-            _options.StartTime = _contextOptions.StartTime;
-            _options.EndTime = _contextOptions.EndTime;
-            _options.EndDate = _contextOptions.EndDate;
-            _options.TimeZone = _contextOptions.TimeZone;
+            _model.StartDate = _startDate;
+            _model.StartTime = _startTime;
+            _model.EndTime = _endTime;
+            _model.EndDate = _endDate;
+            _model.TimeZone = _timeZone;
 
-            return new Schedule<T>(_options, _contextOptions.Clock);
+            return new ScheduleContext<TModel>(_model, _clock);
         }
     }
 }

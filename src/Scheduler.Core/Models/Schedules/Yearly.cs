@@ -1,25 +1,35 @@
-﻿namespace Scheduler.Core.Options
+namespace Scheduler.Core.Models.Schedules
 {
-    using System;
     using System.Collections.Generic;
     using System.Linq;
-    using System.Text;
-
     using NodaTime;
-
     using Scheduler.Core.Enums;
-    using Scheduler.Core.Models;
+    using Scheduler.Core.Models.Schedules.Base;
 
-    public class MonthlyOptions : RecurringOptions
+    public class Yearly : Recurring
     {
+        private List<int> _months = new List<int>();
         private List<int> _daysOfMonth = new List<int>();
 
+        public IReadOnlyList<int> Months => _months;
         public IReadOnlyList<int> DaysOfMonth => _daysOfMonth;
 
         public RelativeOccurrence? Relative { get; private set; }
         public bool IsRelative => Relative.HasValue;
 
-        public void UseDaysOfMonth(Action<List<int>> configure)
+        public void UseMonthsOfYear(System.Action<List<int>> configure)
+        {
+            var temp = new List<int>();
+            configure?.Invoke(temp);
+
+            _months = temp
+                .Where(m => m >= 1 && m <= 12)
+                .Distinct()
+                .OrderBy(m => m)
+                .ToList();
+        }
+
+        public void UseDaysOfMonth(System.Action<List<int>> configure)
         {
             var temp = new List<int>();
             configure?.Invoke(temp);
@@ -39,11 +49,15 @@
             Relative = new RelativeOccurrence(index, position);
         }
 
-        internal void Initialize(int dayOfMonth)
+        internal void Initialize(LocalDate startDate)
         {
-            if (_daysOfMonth.Count == 0 && dayOfMonth >= 1 && dayOfMonth <= 31)
+            if (_months.Count == 0)
             {
-                _daysOfMonth.Add(dayOfMonth);
+                _months.Add(startDate.Month);
+            }
+            if (_daysOfMonth.Count == 0)
+            {
+                _daysOfMonth.Add(startDate.Day);
             }
         }
     }

@@ -11,85 +11,86 @@
     using Scheduler.Core.Contracts;
     using Scheduler.Core.Enums;
     using Scheduler.Core.Models;
-    using Scheduler.Core.Options;
+    using Scheduler.Core.Models.Schedules;
+    using Scheduler.Core.Models.Schedules.Base;
 
     public static class DescriptionGenerator
     {
-        public static string Generate(IScheduleOptions options)
+        public static string Generate(Schedule model)
         {
-            return options switch
+            return model switch
             {
-                OneTimeOptions o => GenerateOneTimeDescription(o),
-                DailyOptions o => GenerateRecurringDescription(o, "day", _ => null),
-                WeeklyOptions o => GenerateRecurringDescription(o, "week", FormatWeeklyDetails),
-                MonthlyOptions o => GenerateRecurringDescription(o, "month", FormatMonthlyDetails),
-                YearlyOptions o => GenerateRecurringDescription(o, "year", FormatYearlyDetails),
-                _ => $"A schedule of an unknown type starting on {options.StartDate}."
+                OneTime o => GenerateOneTimeDescription(o),
+                Daily o => GenerateRecurringDescription(o, "day", _ => null),
+                Weekly o => GenerateRecurringDescription(o, "week", FormatWeeklyDetails),
+                Monthly o => GenerateRecurringDescription(o, "month", FormatMonthlyDetails),
+                Yearly o => GenerateRecurringDescription(o, "year", FormatYearlyDetails),
+                _ => $"A schedule of an unknown type starting on {model.StartDate}."
             };
         }
 
-        private static string GenerateOneTimeDescription(OneTimeOptions options)
+        private static string GenerateOneTimeDescription(OneTime model)
         {
-            return $"Occurs once on {FormatDateWithOrdinal(options.StartDate)} at {FormatTimeRange(options.StartTime, options.EndTime)}";
+            return $"Occurs once on {FormatDateWithOrdinal(model.StartDate)} at {FormatTimeRange(model.StartTime, model.EndTime)}";
         }
 
-        private static string GenerateRecurringDescription<T>(T options, string baseUnit, Func<T, string?> formatDetailsFunc)
-            where T : RecurringOptions
+        private static string GenerateRecurringDescription<T>(T model, string baseUnit, Func<T, string?> formatDetailsFunc)
+            where T : Recurring
         {
             var sb = new StringBuilder();
-            sb.Append($"Occurs {FormatInterval(options.Interval, baseUnit)}");
+            sb.Append($"Occurs {FormatInterval(model.Interval, baseUnit)}");
 
-            var details = formatDetailsFunc(options);
+            var details = formatDetailsFunc(model);
             if (!string.IsNullOrEmpty(details))
             {
                 sb.Append($" {details}");
             }
 
-            sb.Append($" at {FormatTimeRange(options.StartTime, options.EndTime)}");
-            sb.Append($" starting on {FormatDateWithOrdinal(options.StartDate)}");
+            sb.Append($" at {FormatTimeRange(model.StartTime, model.EndTime)}");
+            sb.Append($" starting on {FormatDateWithOrdinal(model.StartDate)}");
 
-            if (options.EndDate.HasValue)
+            if (model.EndDate.HasValue)
             {
-                sb.Append($" until {FormatDateWithOrdinal(options.EndDate.Value)}");
+                sb.Append($" until {FormatDateWithOrdinal(model.EndDate.Value)}");
             }
 
             return sb.ToString();
         }
 
-        private static string? FormatWeeklyDetails(WeeklyOptions options)
+        private static string? FormatWeeklyDetails(Weekly model)
         {
-            if (options.DaysOfWeek.Count == 0) return null;
-            return $"on {FormatDayOfWeekList(options.DaysOfWeek)}";
+            if (model.DaysOfWeek.Count == 0) return null;
+            return $"on {FormatDayOfWeekList(model.DaysOfWeek)}";
         }
 
-        private static string? FormatMonthlyDetails(MonthlyOptions options)
+        private static string? FormatMonthlyDetails(Monthly model)
         {
-            if (options.IsRelative && options.Relative.HasValue)
+            if (model.IsRelative && model.Relative.HasValue)
             {
-                return $"on the {FormatRelativeOccurrence(options.Relative.Value)}";
+                return $"on the {FormatRelativeOccurrence(model.Relative.Value)}";
             }
-            if (options.DaysOfMonth.Any())
+            if (model.DaysOfMonth.Any())
             {
-                return $"on the {FormatDayOfMonthList(options.DaysOfMonth)}";
+                return $"on the {FormatDayOfMonthList(model.DaysOfMonth)}";
             }
             return null;
         }
 
-        private static string? FormatYearlyDetails(YearlyOptions options)
+        private static string? FormatYearlyDetails(Yearly model)
         {
             var sb = new StringBuilder();
-            if (options.Months.Any())
+            if (model.Months.Any())
             {
-                sb.Append($"in {FormatMonthList(options.Months)} ");
+                sb.Append($"in {FormatMonthList(model.Months)} ");
             }
 
-            if (options.IsRelative && options.Relative.HasValue)
+            if (model.IsRelative && model.Relative.HasValue)
             {
-                sb.Append($"on the {FormatRelativeOccurrence(options.Relative.Value)}");
+                sb.Append($"on the {FormatRelativeOccurrence(model.Relative.Value)}");
             }
-            else if (options.DaysOfMonth.Any())
+            else if (model.DaysOfMonth.Any())
             {
-                sb.Append($"on the {FormatDayOfMonthList(options.DaysOfMonth)}");
+                sb.Append($"on the {FormatDayOfMonthList(model.DaysOfMonth)}");
             }
 
             return sb.ToString().Trim();

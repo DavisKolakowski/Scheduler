@@ -7,8 +7,9 @@
     using NodaTime;
 
     using Scheduler.Core.Models;
+    using Scheduler.Core.Models.Schedules.Base;
 
-    public interface ISchedule<out TOptions> where TOptions : IScheduleOptions
+    public interface ISchedule<out TModel> where TModel : Schedule
     {
         /// <summary>
         /// Gets the frequency type of the schedule (e.g., "OneTime", "Daily").
@@ -28,7 +29,7 @@
         /// <summary>
         /// Gets the original options used to configure this schedule.
         /// </summary>
-        TOptions Options { get; }
+        TModel Model { get; }
 
         /// <summary>
         /// Gets the next occurrence that will happen after the current time, or the one currently in progress.

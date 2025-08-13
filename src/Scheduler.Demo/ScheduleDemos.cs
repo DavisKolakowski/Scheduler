@@ -13,263 +13,215 @@ using NodaTime.Testing;
 using Scheduler.Core;
 using Scheduler.Core.Contracts;
 using Scheduler.Core.Enums;
+using Scheduler.Core.Factories;
+using Scheduler.Core.Models.Schedules;
+using Scheduler.Core.Models.Schedules.Base;
 
 namespace Scheduler.Demo;
 public static class ScheduleDemos
 {
     private static readonly IClock _clock = new FakeClock(Instant.FromUtc(2025, 8, 9, 19, 53, 05));
-    private static readonly ScheduleContext _context = new ScheduleContext(_clock);
+    private static readonly ScheduleFactory _factory = new ScheduleFactory(_clock);
     private static readonly DateTimeZone _tz = DateTimeZoneProviders.Tzdb["America/New_York"];
 
     #region Demo Definitions
 
     // --- One-Time Schedules ---
-    private static ISchedule<IScheduleOptions> Demo1_OneTimeEvent()
+    private static ISchedule<OneTime> Demo1_OneTimeEvent()
     {
-        var builder = _context.CreateBuilder(
+        var schedule = _factory.Create(
             new LocalDate(2024, 8, 20),
             new LocalTime(10, 0),
             new LocalTime(11, 30),
-            _tz);
-
-        var schedule = builder.Build();
+            _tz)
+            .OneTime()
+            .Build();
         return schedule;
     }
 
-    private static ISchedule<IScheduleOptions> Demo1a_OvernightOneTimeEvent()
+    private static ISchedule<OneTime> Demo1a_OvernightOneTimeEvent()
     {
-        var builder = _context.CreateBuilder(
+        var schedule = _factory.Create(
             new LocalDate(2024, 8, 20),
             new LocalTime(22, 0),
             new LocalTime(2, 0),
-            _tz);
-
-        var schedule = builder.Build();
+            _tz)
+            .OneTime()
+            .Build();
         return schedule;
     }
 
     // --- Daily Schedules ---
-    private static ISchedule<IScheduleOptions> Demo2_DailyRecurring()
+    private static ISchedule<Daily> Demo2_DailyRecurring()
     {
-        var builder = _context.CreateBuilder(
+        var schedule = _factory.Create(
             new LocalDate(2025, 8, 1),
             new LocalTime(9, 0),
             new LocalTime(17, 0),
-            _tz);
-
-        var frequencyBuilder = builder
-            .Recurring()
-            .Daily();
-
-        var schedule = frequencyBuilder.Build();
+            _tz)
+            .Daily()
+            .Build();
         return schedule;
     }
 
-    private static ISchedule<IScheduleOptions> Demo3_Every3DaysWithEndDate()
+    private static ISchedule<Daily> Demo3_Every3DaysWithEndDate()
     {
-        var builder = _context.CreateBuilder(
+        var schedule = _factory.Create(
             new LocalDate(2025, 8, 1),
             new LocalTime(9, 0),
             new LocalTime(17, 0),
-            _tz);
-
-        var frequencyBuilder = builder
-            .Recurring(new LocalDate(2025, 8, 30))
-            .Daily(o => o.Interval = 3);
-
-        var schedule = frequencyBuilder.Build();
+            _tz,
+            new LocalDate(2025, 8, 30))
+            .Daily(o => o.Interval = 3)
+            .Build();
         return schedule;
     }
 
     // --- Weekly Schedules ---
-    private static ISchedule<IScheduleOptions> Demo4_WeeklyOnTuesdays()
+    private static ISchedule<Weekly> Demo4_WeeklyOnTuesdays()
     {
-        var builder = _context.CreateBuilder(
+        var schedule = _factory.Create(
             new LocalDate(2025, 8, 5),
             new LocalTime(18, 0),
             new LocalTime(19, 0),
-            _tz);
-
-        var frequencyBuilder = builder
-            .Recurring()
-            .Weekly();
-
-        var schedule = frequencyBuilder.Build();
+            _tz)
+            .Weekly()
+            .Build();
         return schedule;
     }
 
-    private static ISchedule<IScheduleOptions> Demo5_WeeklyOnMonWedFri()
+    private static ISchedule<Weekly> Demo5_WeeklyOnMonWedFri()
     {
-        var builder = _context.CreateBuilder(
+        var schedule = _factory.Create(
             new LocalDate(2025, 8, 4),
             new LocalTime(12, 0),
             new LocalTime(13, 0),
-            _tz);
-
-        var frequencyBuilder = builder
-            .Recurring()
-            .Weekly(o => o.UseDaysOfWeek(list => list.AddRange(new[] { 1, 3, 5 })));
-
-        var schedule = frequencyBuilder.Build();
+            _tz)
+            .Weekly(o => o.UseDaysOfWeek(list => list.AddRange(new[] { 1, 3, 5 })))
+            .Build();
         return schedule;
     }
 
-    private static ISchedule<IScheduleOptions> Demo6_BiWeeklyOnSunMon()
+    private static ISchedule<Weekly> Demo6_BiWeeklyOnSunMon()
     {
-        var builder = _context.CreateBuilder(
+        var schedule = _factory.Create(
             new LocalDate(2025, 8, 3),
             new LocalTime(10, 0),
             new LocalTime(11, 0),
-            _tz);
-
-        var frequencyBuilder = builder
-            .Recurring()
+            _tz)
             .Weekly(o =>
             {
                 o.Interval = 2;
                 o.UseDaysOfWeek(list => list.AddRange(new[] { 7, 1 }));
-            });
-
-        var schedule = frequencyBuilder.Build();
+            })
+            .Build();
         return schedule;
     }
 
     // --- Monthly Schedules ---
-    private static ISchedule<IScheduleOptions> Demo7_MonthlyOnThe15th()
+    private static ISchedule<Monthly> Demo7_MonthlyOnThe15th()
     {
-        var builder = _context.CreateBuilder(
+        var schedule = _factory.Create(
             new LocalDate(2025, 7, 15),
             new LocalTime(20, 0),
             new LocalTime(21, 0),
-            _tz);
-
-        var frequencyBuilder = builder
-            .Recurring()
-            .Monthly();
-
-        var schedule = frequencyBuilder.Build();
+            _tz)
+            .Monthly()
+            .Build();
         return schedule;
     }
 
-    private static ISchedule<IScheduleOptions> Demo7a_MonthlyOnMultipleDays()
+    private static ISchedule<Monthly> Demo7a_MonthlyOnMultipleDays()
     {
-        var builder = _context.CreateBuilder(
+        var schedule = _factory.Create(
             new LocalDate(2025, 7, 1),
             new LocalTime(12, 0),
             new LocalTime(12, 30),
-            _tz);
-
-        var frequencyBuilder = builder
-            .Recurring()
-            .Monthly(o => o.UseDaysOfMonth(list => list.AddRange(new[] { 1, 15, 31 })));
-
-        var schedule = frequencyBuilder.Build();
+            _tz)
+            .Monthly(o => o.UseDaysOfMonth(list => list.AddRange(new[] { 1, 15, 31 })))
+            .Build();
         return schedule;
     }
 
-    private static ISchedule<IScheduleOptions> Demo8_MonthlyOnFirstFriday()
+    private static ISchedule<Monthly> Demo8_MonthlyOnFirstFriday()
     {
-        var builder = _context.CreateBuilder(
+        var schedule = _factory.Create(
             new LocalDate(2025, 8, 1),
             new LocalTime(18, 0),
             new LocalTime(21, 30),
-            _tz);
-
-        var frequencyBuilder = builder
-            .Recurring()
-            .Monthly(o => o.UseRelative(RelativeIndex.First, RelativePosition.Friday));
-
-        var schedule = frequencyBuilder.Build();
+            _tz)
+            .Monthly(o => o.UseRelative(RelativeIndex.First, RelativePosition.Friday))
+            .Build();
         return schedule;
     }
 
-    private static ISchedule<IScheduleOptions> Demo9_QuarterlyOnLastWeekendDay()
+    private static ISchedule<Monthly> Demo9_QuarterlyOnLastWeekendDay()
     {
-        var builder = _context.CreateBuilder(
+        var schedule = _factory.Create(
             new LocalDate(2025, 1, 1),
             new LocalTime(14, 0),
             new LocalTime(16, 0),
-            _tz);
-
-        var frequencyBuilder = builder
-            .Recurring()
+            _tz)
             .Monthly(o =>
             {
                 o.Interval = 3;
                 o.UseRelative(RelativeIndex.Last, RelativePosition.WeekendDay);
-            });
-
-        var schedule = frequencyBuilder.Build();
+            })
+            .Build();
         return schedule;
     }
 
     // --- Yearly Schedules ---
-    private static ISchedule<IScheduleOptions> Demo10_YearlyOnDec25()
+    private static ISchedule<Yearly> Demo10_YearlyOnDec25()
     {
-        var builder = _context.CreateBuilder(
+        var schedule = _factory.Create(
             new LocalDate(2024, 12, 25),
             new LocalTime(8, 0),
             new LocalTime(20, 0),
-            _tz);
-
-        var frequencyBuilder = builder
-            .Recurring()
-            .Yearly();
-
-        var schedule = frequencyBuilder.Build();
+            _tz)
+            .Yearly()
+            .Build();
         return schedule;
     }
 
-    private static ISchedule<IScheduleOptions> Demo11_YearlyInJunDecOn15th()
+    private static ISchedule<Yearly> Demo11_YearlyInJunDecOn15th()
     {
-        var builder = _context.CreateBuilder(
+        var schedule = _factory.Create(
             new LocalDate(2025, 6, 15),
             new LocalTime(10, 0),
             new LocalTime(16, 0),
-            _tz);
-
-        var frequencyBuilder = builder
-            .Recurring()
-            .Yearly(o => o.UseMonthsOfYear(list => list.AddRange(new[] { 6, 12 })));
-
-        var schedule = frequencyBuilder.Build();
+            _tz)
+            .Yearly(o => o.UseMonthsOfYear(list => list.AddRange(new[] { 6, 12 })))
+            .Build();
         return schedule;
     }
 
-    private static ISchedule<IScheduleOptions> Demo11a_YearlyInFebOnMultipleDays()
+    private static ISchedule<Yearly> Demo11a_YearlyInFebOnMultipleDays()
     {
-        var builder = _context.CreateBuilder(
+        var schedule = _factory.Create(
             new LocalDate(2025, 2, 1),
             new LocalTime(9, 0),
             new LocalTime(10, 0),
-            _tz);
-
-        var frequencyBuilder = builder
-            .Recurring()
-            .Yearly(o => o.UseDaysOfMonth(list => list.AddRange(new[] { 10, 20 })));
-
-        var schedule = frequencyBuilder.Build();
+            _tz)
+            .Yearly(o => o.UseDaysOfMonth(list => list.AddRange(new[] { 10, 20 })))
+            .Build();
         return schedule;
     }
 
-    private static ISchedule<IScheduleOptions> Demo12_Every2YearsOnFirstWeekendDay()
+    private static ISchedule<Yearly> Demo12_Every2YearsOnFirstWeekendDay()
     {
-        var builder = _context.CreateBuilder(
+        var schedule = _factory.Create(
             new LocalDate(2024, 1, 6),
             new LocalTime(9, 0),
             new LocalTime(17, 0),
-            _tz);
-
-        var frequencyBuilder = builder
-            .Recurring()
+            _tz)
             .Yearly(o =>
             {
                 o.Interval = 2;
                 o.UseMonthsOfYear(list => list.AddRange(new[] { 1, 12 }));
                 o.UseRelative(RelativeIndex.First, RelativePosition.WeekendDay);
-            });
-
-        var schedule = frequencyBuilder.Build();
+            })
+            .Build();
         return schedule;
     }
 
@@ -296,7 +248,7 @@ public static class ScheduleDemos
         RunDemo("12. Every 2 Years in Jan & Dec on the First Weekend Day", Demo12_Every2YearsOnFirstWeekendDay());
     }
 
-    private static void RunDemo(string title, ISchedule<IScheduleOptions> schedule)
+    private static void RunDemo<TModel>(string title, ISchedule<TModel> schedule) where TModel : Schedule
     {
         Console.WriteLine($"--- {title} ---");
 

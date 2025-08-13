@@ -1,8 +1,8 @@
 using NodaTime;
 using NodaTime.Testing;
+
 using Scheduler.Core;
 using Scheduler.Core.Contracts;
-using Scheduler.Core.Models;
 using Scheduler.Core.Options;
 
 namespace Scheduler.UnitTests;

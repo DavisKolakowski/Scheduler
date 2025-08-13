@@ -1,17 +1,16 @@
-﻿namespace Scheduler.Core.Options
+namespace Scheduler.Core.Models.Schedules
 {
-    using System;
     using System.Collections.Generic;
     using System.Linq;
-    using System.Text;
 
-    public class WeeklyOptions : RecurringOptions
+    using Scheduler.Core.Models.Schedules.Base;
+
+    public class Weekly : Recurring
     {
         private List<int> _daysOfWeek = new List<int>();
-
         public IReadOnlyList<int> DaysOfWeek => _daysOfWeek;
 
-        public void UseDaysOfWeek(Action<List<int>> configure)
+        public void UseDaysOfWeek(System.Action<List<int>> configure)
         {
             var temp = new List<int>();
             configure?.Invoke(temp);
@@ -23,11 +22,11 @@
                 .ToList();
         }
 
-        internal void Initialize(int isoDayOfWeek)
+        internal void Initialize(int dayOfWeek)
         {
-            if (_daysOfWeek.Count == 0 && isoDayOfWeek >= 1 && isoDayOfWeek <= 7)
+            if (_daysOfWeek.Count == 0)
             {
-                _daysOfWeek.Add(isoDayOfWeek);
+                _daysOfWeek.Add(dayOfWeek);
             }
         }
     }
