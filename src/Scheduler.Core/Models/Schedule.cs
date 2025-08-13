@@ -141,6 +141,11 @@
 
         private ZonedDateTime? CalculateLastOccurrence()
         {
+            if (Model is OneTime)
+            {
+                return FirstOccurrence;
+            }
+
             if (!Model.EndDate.HasValue)
             {
                 return null;

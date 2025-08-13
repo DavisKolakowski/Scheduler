@@ -1,7 +1,10 @@
 ﻿namespace Scheduler.Core.Builders
 {
     using System;
+    using System.Reflection;
+
     using NodaTime;
+
     using Scheduler.Core.Contracts;
     using Scheduler.Core.Models.Frequencies;
 
@@ -33,8 +36,16 @@
         public FrequencyBuilder<OneTime> OneTime()
         {
             var model = new OneTime();
-            return new FrequencyBuilder<OneTime>(model, _clock, _startDate, _startTime, _endTime, _timeZone, _endDate);
-
+            LocalDate endDate;
+            if (_endTime <= _startTime)
+            {
+                endDate = _startDate.PlusDays(1);
+            }
+            else
+            {
+                endDate = _startDate;
+            }
+            return new FrequencyBuilder<OneTime>(model, _clock, _startDate, _startTime, _endTime, _timeZone, endDate);
         }
 
         public FrequencyBuilder<Daily> Daily(Action<Daily>? configure = null)
