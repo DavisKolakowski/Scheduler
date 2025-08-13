@@ -5,7 +5,7 @@
     using Scheduler.Core.Contracts;
     using Scheduler.Core.Models.Schedules;
 
-    public class ScheduleContextOptionsBuilder
+    public class ScheduleBuilder
     {
         private readonly IClock _clock;
         private readonly LocalDate _startDate;
@@ -14,7 +14,7 @@
         private readonly DateTimeZone _timeZone;
         private readonly LocalDate? _endDate;
 
-        internal ScheduleContextOptionsBuilder(
+        internal ScheduleBuilder(
             IClock clock,
             LocalDate startDate,
             LocalTime startTime,

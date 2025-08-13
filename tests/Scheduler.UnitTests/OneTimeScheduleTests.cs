@@ -14,7 +14,7 @@ public class OneTimeScheduleTests : BaseScheduleTests
         var clock = CreateClock(2024, 8, 20, 9, 0);
         var factory = new ScheduleFactory(clock);
         
-        var schedule = factory.Create(
+        var schedule = factory.CreateBuilder(
             TestDate(2024, 8, 20),
             TestTime(10, 0),
             TestTime(11, 30),
@@ -40,7 +40,7 @@ public class OneTimeScheduleTests : BaseScheduleTests
         var clock = CreateClock(2024, 8, 20, 16, 0);
         var factory = new ScheduleFactory(clock);
         
-        var schedule = factory.Create(
+        var schedule = factory.CreateBuilder(
             TestDate(2024, 8, 20),
             TestTime(10, 0),
             TestTime(11, 30),
@@ -65,7 +65,7 @@ public class OneTimeScheduleTests : BaseScheduleTests
         var clock = CreateClock(2024, 8, 20, 10, 30);
         var factory = new ScheduleFactory(clock);
         
-        var schedule = factory.Create(
+        var schedule = factory.CreateBuilder(
             TestDate(2024, 8, 20),
             TestTime(10, 0),
             TestTime(11, 30),
@@ -86,7 +86,7 @@ public class OneTimeScheduleTests : BaseScheduleTests
         var clock = CreateClock(2024, 8, 20, 21, 0);
         var factory = new ScheduleFactory(clock);
         
-        var schedule = factory.Create(
+        var schedule = factory.CreateBuilder(
             TestDate(2024, 8, 20),
             TestTime(22, 0),
             TestTime(2, 0),
@@ -95,7 +95,7 @@ public class OneTimeScheduleTests : BaseScheduleTests
             .Build();
 
         var nextOccurrence = schedule.GetNextOccurrence();
-        var occurrenceDuration = schedule.OccurrenceDuration;
+        var occurrenceDuration = schedule.OccurrenceLength;
 
         Assert.NotNull(nextOccurrence);
         Assert.Equal("04:00", occurrenceDuration);
@@ -107,7 +107,7 @@ public class OneTimeScheduleTests : BaseScheduleTests
         var utcClock = CreateClock(2024, 8, 20, 14, 0);
         var factory = new ScheduleFactory(utcClock);
         
-        var nySchedule = factory.Create(
+        var nySchedule = factory.CreateBuilder(
             TestDate(2024, 8, 20),
             TestTime(10, 0),
             TestTime(11, 0),
@@ -115,7 +115,7 @@ public class OneTimeScheduleTests : BaseScheduleTests
             .OneTime()
             .Build();
 
-        var laSchedule = factory.Create(
+        var laSchedule = factory.CreateBuilder(
             TestDate(2024, 8, 20),
             TestTime(10, 0),
             TestTime(11, 0),
@@ -136,7 +136,7 @@ public class OneTimeScheduleTests : BaseScheduleTests
         var clock = CreateClock(2024, 8, 20, 9, 0);
         var factory = new ScheduleFactory(clock);
         
-        var schedule = factory.Create(
+        var schedule = factory.CreateBuilder(
             TestDate(2024, 8, 20),
             TestTime(10, 0),
             TestTime(11, 30),
@@ -157,7 +157,7 @@ public class OneTimeScheduleTests : BaseScheduleTests
         var clock = CreateClock(2024, 8, 20, 9, 0);
         var factory = new ScheduleFactory(clock);
         
-        var schedule = factory.Create(
+        var schedule = factory.CreateBuilder(
             TestDate(2024, 8, 20),
             TestTime(10, 0),
             TestTime(10, 0),
@@ -165,7 +165,7 @@ public class OneTimeScheduleTests : BaseScheduleTests
             .OneTime()
             .Build();
 
-        var duration = schedule.OccurrenceDuration;
+        var duration = schedule.OccurrenceLength;
 
         Assert.Equal("00:00", duration);
     }
@@ -176,7 +176,7 @@ public class OneTimeScheduleTests : BaseScheduleTests
         var clock = CreateClock(2024, 2, 28, 9, 0);
         var factory = new ScheduleFactory(clock);
         
-        var schedule = factory.Create(
+        var schedule = factory.CreateBuilder(
             TestDate(2024, 2, 29),
             TestTime(10, 0),
             TestTime(11, 0),
@@ -199,7 +199,7 @@ public class OneTimeScheduleTests : BaseScheduleTests
         var clock = CreateClock(2024, 8, 19, 23, 0);
         var factory = new ScheduleFactory(clock);
         
-        var schedule = factory.Create(
+        var schedule = factory.CreateBuilder(
             TestDate(2024, 8, 20),
             TestTime(hour, minute),
             TestTime(hour, minute + 30 > 59 ? 59 : minute + 30),

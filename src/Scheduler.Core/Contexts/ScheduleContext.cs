@@ -22,23 +22,23 @@ namespace Scheduler.Core.Contexts
     {
         private readonly IClock _clock;
         private readonly ZonedDateTime _firstOccurrence;
-        private readonly Duration _occurrenceDuration;
+        private readonly Duration _duration;
         private readonly ZonedDateTime? _expiration;
 
         public ScheduleContext(TModel model, IClock clock)
         {
             Model = model;
             _clock = clock;
-            Type = model.GetType().Name.Replace("Schedule", string.Empty);
+            Type = model.GetType().Name.Replace(nameof(Schedule), string.Empty);
             _firstOccurrence = model.StartDate.At(model.StartTime).InZone(model.TimeZone, Resolvers.LenientResolver);
-            _occurrenceDuration = Period.Between(model.StartTime, model.EndTime, PeriodUnits.Ticks).ToDuration();
+            _duration = Period.Between(model.StartTime, model.EndTime, PeriodUnits.Ticks).ToDuration();
             Description = DescriptionGenerator.Generate(Model);
             _expiration = CalculateExpiration();
         }
 
         public string Type { get; }
         public string Description { get; }
-        public string OccurrenceDuration => FormatDuration(_occurrenceDuration);
+        public TimeSpan OccurrenceLength => FormatDuration(_duration);
         public TModel Model { get; }
 
         public ZonedDateTime? GetNextOccurrence()
@@ -48,7 +48,7 @@ namespace Scheduler.Core.Contexts
             if (Model is OneTime)
             {
                 var eventStart = _firstOccurrence.ToInstant();
-                var eventEnd = eventStart.Plus(_occurrenceDuration);
+                var eventEnd = eventStart.Plus(_duration);
 
                 if (eventStart > now || eventStart <= now && eventEnd > now)
                 {
@@ -62,7 +62,7 @@ namespace Scheduler.Core.Contexts
             var searchEnd = now.Plus(Duration.FromSeconds(1));
 
             var activeOccurrence = GetOccurrences(searchStart, searchEnd)
-                                   .FirstOrDefault(occ => occ.ToInstant() <= now && occ.ToInstant().Plus(_occurrenceDuration) > now);
+                                   .FirstOrDefault(occ => occ.ToInstant() <= now && occ.ToInstant().Plus(_duration) > now);
 
             if (activeOccurrence != default)
             {
@@ -83,7 +83,7 @@ namespace Scheduler.Core.Contexts
             if (Model is OneTime)
             {
                 var eventStart = _firstOccurrence.ToInstant();
-                var eventEnd = eventStart.Plus(_occurrenceDuration);
+                var eventEnd = eventStart.Plus(_duration);
 
                 if (eventEnd <= now)
                 {
@@ -94,7 +94,7 @@ namespace Scheduler.Core.Contexts
             }
 
             var previous = GetOccurrences(_firstOccurrence.ToInstant(), now)
-                           .LastOrDefault(occ => occ.ToInstant().Plus(_occurrenceDuration) <= now);
+                           .LastOrDefault(occ => occ.ToInstant().Plus(_duration) <= now);
 
             return previous == default ? (ZonedDateTime?)null : previous;
         }
@@ -106,7 +106,7 @@ namespace Scheduler.Core.Contexts
             var now = _clock.GetCurrentInstant();
 
             var completed = GetOccurrences(_firstOccurrence.ToInstant(), now)
-                           .Where(occ => occ.ToInstant().Plus(_occurrenceDuration) <= now)
+                           .Where(occ => occ.ToInstant().Plus(_duration) <= now)
                            .Reverse()
                            .Take(maxItems);
 
@@ -360,14 +360,13 @@ namespace Scheduler.Core.Contexts
             return null;
         }
 
-        private string FormatDuration(Duration duration)
+        private TimeSpan FormatDuration(Duration duration)
         {
             if (duration.TotalTicks < 0)
             {
                 duration += Duration.FromDays(1);
             }
-            var pattern = DurationPattern.CreateWithInvariantCulture("HH:mm");
-            return pattern.Format(duration);
+            return duration.ToTimeSpan();
         }
     }
 }

@@ -98,7 +98,10 @@
 
         private static string FormatInterval(int interval, string unit)
         {
-            if (interval == 1) return unit == "day" ? "daily" : $"{unit}ly";
+            if (interval == 1)
+            {
+                return unit == "day" ? "daily" : $"{unit}ly";
+            }
             return $"every {interval} {unit}s";
         }
 
@@ -123,15 +126,42 @@
         private static string FormatDateWithOrdinal(LocalDate date) => $"{date.ToString("MMMM", CultureInfo.InvariantCulture)} {GetOrdinal(date.Day)}, {date.Year}";
         private static string GetOrdinal(int num)
         {
-            if (num <= 0) return num.ToString();
-            switch (num % 100) { case 11: case 12: case 13: return num + "th"; }
-            switch (num % 10) { case 1: return num + "st"; case 2: return num + "nd"; case 3: return num + "rd"; default: return num + "th"; }
+            if (num <= 0)
+            {
+                return num.ToString();
+            }
+            switch (num % 100) 
+            { 
+                case 11: 
+                case 12: 
+                case 13: 
+                    return num + "th"; 
+            }
+            switch (num % 10) 
+            { 
+                case 1: 
+                    return num + "st"; 
+                case 2: 
+                    return num + "nd"; 
+                case 3: 
+                    return num + "rd"; 
+                default: 
+                    return num + "th"; }
         }
         private static string ToFormattedString(IReadOnlyList<string> items)
         {
-            if (items.Count == 0) return string.Empty;
-            if (items.Count == 1) return items[0];
-            if (items.Count == 2) return items[0] + " and " + items[1];
+            if (items.Count == 0)
+            {
+                return string.Empty;
+            }
+            if (items.Count == 1)
+            {
+                return items[0];
+            }
+            if (items.Count == 2)
+            {
+                return items[0] + " and " + items[1];
+            }
             return string.Join(", ", items.Take(items.Count - 1)) + ", and " + items.Last();
         }
     }

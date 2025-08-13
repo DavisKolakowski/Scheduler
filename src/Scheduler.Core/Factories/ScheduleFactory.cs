@@ -16,9 +16,9 @@ namespace Scheduler.Core.Factories
             _clock = clock ?? throw new ArgumentNullException(nameof(clock));
         }
 
-        public ScheduleContextOptionsBuilder Create(LocalDate startDate, LocalTime startTime, LocalTime endTime, DateTimeZone timeZone, LocalDate? endDate = null)
+        public ScheduleBuilder CreateBuilder(LocalDate startDate, LocalTime startTime, LocalTime endTime, DateTimeZone timeZone, LocalDate? endDate = null)
         {
-            return new ScheduleContextOptionsBuilder(_clock, startDate, startTime, endTime, timeZone, endDate);
+            return new ScheduleBuilder(_clock, startDate, startTime, endTime, timeZone, endDate);
         }
     }
 }

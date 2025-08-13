@@ -22,9 +22,9 @@
         string Description { get; }
 
         /// <summary>
-        /// Gets the duration of a single occurrence, formatted as a string (e.g., "08:30").
+        /// Gets the time span of a single occurrence.
         /// </summary>
-        string OccurrenceDuration { get; }
+        TimeSpan OccurrenceLength { get; }
 
         /// <summary>
         /// Gets the original options used to configure this schedule.
