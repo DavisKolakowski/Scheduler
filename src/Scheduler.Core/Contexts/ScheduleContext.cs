@@ -29,19 +29,24 @@ namespace Scheduler.Core.Contexts
             Model = model;
             _clock = clock;
             Type = model.GetType().Name.Replace(nameof(Schedule), string.Empty);
-            _duration = Period.Between(model.StartTime, model.EndTime, PeriodUnits.Ticks).ToDuration();
+            var duration = Period.Between(model.StartTime, model.EndTime, PeriodUnits.Ticks).ToDuration();
+            if (duration < Duration.Zero)
+            {
+                duration += Duration.FromDays(1);
+            }
+            _duration = duration;
             Description = DescriptionGenerator.Generate(Model);
+            RequestedAt = _clock.GetCurrentInstant();
             _expiration = CalculateExpiration();
             FirstOccurrence = CalculateFirstOccurrence();
             PreviousOccurrence = CalculatePreviousOccurrence();
             NextOccurrence = CalculateNextOccurrence();
             LastOccurrence = CalculateLastOccurrence();
-            RequestedAt = _clock.GetCurrentInstant();
         }
 
         public string Type { get; }
         public string Description { get; }
-        public TimeSpan OccurrenceLength => FormatDuration(_duration);
+        public TimeSpan OccurrenceLength => _duration.ToTimeSpan();
         public ZonedDateTime? FirstOccurrence { get; }       
         public ZonedDateTime? PreviousOccurrence { get; }
         public ZonedDateTime? NextOccurrence { get; }
@@ -69,7 +74,10 @@ namespace Scheduler.Core.Contexts
 
         public IEnumerable<ZonedDateTime> GetUpcomingOccurrences(int maxItems = 100)
         {
-            if (maxItems <= 0) yield break;
+            if (maxItems <= 0)
+            {
+                yield break;
+            }
 
             var searchEnd = CalculateSearchEnd(RequestedAt, maxItems);
 
@@ -401,15 +409,6 @@ namespace Scheduler.Core.Contexts
                 return Model.EndDate.Value.At(Model.EndTime).InZoneStrictly(Model.TimeZone);
             }
             return null;
-        }
-
-        private TimeSpan FormatDuration(Duration duration)
-        {
-            if (duration.TotalTicks < 0)
-            {
-                duration += Duration.FromDays(1);
-            }
-            return duration.ToTimeSpan();
         }
     }
 }
