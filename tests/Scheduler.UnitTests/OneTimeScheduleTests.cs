@@ -1,5 +1,4 @@
 using NodaTime;
-using Scheduler.Core.Factories;
 
 namespace Scheduler.UnitTests;
 
@@ -9,9 +8,9 @@ public class OneTimeScheduleTests : BaseScheduleTests
     public void OneTimeSchedule_SameDay_ShouldReturnCorrectOccurrence()
     {
         var clock = CreateClock(2024, 8, 20, 9, 0);
-        var factory = CreateFactory(clock);
+        var factory = CreateContext(clock);
         
-        var schedule = factory.Create(
+        var schedule = factory.CreateBuilder(
             TestDate(2024, 8, 20),
             TestTime(10, 0),
             TestTime(11, 30),
@@ -33,9 +32,9 @@ public class OneTimeScheduleTests : BaseScheduleTests
     public void OneTimeSchedule_InPast_ShouldReturnPreviousOccurrence()
     {
         var clock = CreateClock(2024, 8, 20, 16, 0);
-        var factory = CreateFactory(clock);
+        var factory = CreateContext(clock);
         
-        var schedule = factory.Create(
+        var schedule = factory.CreateBuilder(
             TestDate(2024, 8, 20),
             TestTime(10, 0),
             TestTime(11, 30),
@@ -56,9 +55,9 @@ public class OneTimeScheduleTests : BaseScheduleTests
     public void OneTimeSchedule_CurrentlyActive_ShouldReturnAsNext()
     {
         var clock = CreateClock(2024, 8, 20, 10, 30);
-        var factory = CreateFactory(clock);
+        var factory = CreateContext(clock);
         
-        var schedule = factory.Create(
+        var schedule = factory.CreateBuilder(
             TestDate(2024, 8, 20),
             TestTime(10, 0),
             TestTime(11, 30),
@@ -74,9 +73,9 @@ public class OneTimeScheduleTests : BaseScheduleTests
     public void OneTimeSchedule_OvernightEvent_ShouldHandleCorrectly()
     {
         var clock = CreateClock(2024, 8, 20, 21, 0);
-        var factory = CreateFactory(clock);
+        var factory = CreateContext(clock);
         
-        var schedule = factory.Create(
+        var schedule = factory.CreateBuilder(
             TestDate(2024, 8, 20),
             TestTime(22, 0),
             TestTime(2, 0),
@@ -94,9 +93,9 @@ public class OneTimeScheduleTests : BaseScheduleTests
     public void OneTimeSchedule_DifferentTimeZones_ShouldRespectTimeZone()
     {
         var utcClock = CreateClock(2024, 8, 20, 14, 0);
-        var factory = CreateFactory(utcClock);
+        var factory = CreateContext(utcClock);
         
-        var nySchedule = factory.Create(
+        var nySchedule = factory.CreateBuilder(
             TestDate(2024, 8, 20),
             TestTime(10, 0),
             TestTime(11, 0),
@@ -104,7 +103,7 @@ public class OneTimeScheduleTests : BaseScheduleTests
             .OneTime()
             .Build();
 
-        var laSchedule = factory.Create(
+        var laSchedule = factory.CreateBuilder(
             TestDate(2024, 8, 20),
             TestTime(10, 0),
             TestTime(11, 0),
@@ -120,9 +119,9 @@ public class OneTimeScheduleTests : BaseScheduleTests
     public void OneTimeSchedule_Description_ShouldBeCorrect()
     {
         var clock = CreateClock(2024, 8, 20, 9, 0);
-        var factory = CreateFactory(clock);
+        var factory = CreateContext(clock);
         
-        var schedule = factory.Create(
+        var schedule = factory.CreateBuilder(
             TestDate(2024, 8, 20),
             TestTime(10, 0),
             TestTime(11, 30),
@@ -141,9 +140,9 @@ public class OneTimeScheduleTests : BaseScheduleTests
     public void OneTimeSchedule_ZeroMinuteDuration_ShouldWork()
     {
         var clock = CreateClock(2024, 8, 20, 9, 0);
-        var factory = CreateFactory(clock);
+        var factory = CreateContext(clock);
         
-        var schedule = factory.Create(
+        var schedule = factory.CreateBuilder(
             TestDate(2024, 8, 20),
             TestTime(10, 0),
             TestTime(10, 0),
@@ -160,9 +159,9 @@ public class OneTimeScheduleTests : BaseScheduleTests
     public void OneTimeSchedule_LeapYear_February29_ShouldWork()
     {
         var clock = CreateClock(2024, 2, 28, 9, 0);
-        var factory = CreateFactory(clock);
+        var factory = CreateContext(clock);
         
-        var schedule = factory.Create(
+        var schedule = factory.CreateBuilder(
             TestDate(2024, 2, 29),
             TestTime(10, 0),
             TestTime(11, 0),
@@ -181,9 +180,9 @@ public class OneTimeScheduleTests : BaseScheduleTests
     public void OneTimeSchedule_VariousStartTimes_ShouldWork(int hour, int minute)
     {
         var clock = CreateClock(2024, 8, 19, 23, 0);
-        var factory = CreateFactory(clock);
+        var factory = CreateContext(clock);
         
-        var schedule = factory.Create(
+        var schedule = factory.CreateBuilder(
             TestDate(2024, 8, 20),
             TestTime(hour, minute),
             TestTime(hour, Math.Min(59, minute + 30)),

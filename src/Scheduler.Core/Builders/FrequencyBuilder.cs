@@ -7,7 +7,6 @@
 
     using NodaTime;
 
-    using Scheduler.Core.Contexts;
     using Scheduler.Core.Contracts;
     using Scheduler.Core.Models;
     using Scheduler.Core.Models.Frequencies.Base;

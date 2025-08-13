@@ -9,9 +9,9 @@ public class MonthlyScheduleTests : BaseScheduleTests
     public void MonthlySchedule_BasicMonthly_ShouldReturnCorrectOccurrences()
     {
         var clock = CreateClock(2025, 7, 15, 8, 0);
-        var factory = CreateFactory(clock);
+        var factory = CreateContext(clock);
         
-        var schedule = factory.Create(
+        var schedule = factory.CreateBuilder(
             TestDate(2025, 7, 15),
             TestTime(20, 0),
             TestTime(21, 0),
@@ -30,9 +30,9 @@ public class MonthlyScheduleTests : BaseScheduleTests
     public void MonthlySchedule_MultipleDays_ShouldReturnCorrectOccurrences()
     {
         var clock = CreateClock(2025, 7, 1, 8, 0);
-        var factory = CreateFactory(clock);
+        var factory = CreateContext(clock);
         
-        var schedule = factory.Create(
+        var schedule = factory.CreateBuilder(
             TestDate(2025, 7, 1),
             TestTime(12, 0),
             TestTime(12, 30),
@@ -51,9 +51,9 @@ public class MonthlyScheduleTests : BaseScheduleTests
     public void MonthlySchedule_RelativeFirstFriday_ShouldWork()
     {
         var clock = CreateClock(2025, 8, 1, 8, 0);
-        var factory = CreateFactory(clock);
+        var factory = CreateContext(clock);
 
-        var schedule = factory.Create(
+        var schedule = factory.CreateBuilder(
             TestDate(2025, 8, 1),
             TestTime(18, 0),
             TestTime(21, 30),
@@ -72,9 +72,9 @@ public class MonthlyScheduleTests : BaseScheduleTests
     public void MonthlySchedule_QuarterlyLastWeekendDay_ShouldWork()
     {
         var clock = CreateClock(2025, 1, 1, 8, 0);
-        var factory = CreateFactory(clock);
+        var factory = CreateContext(clock);
 
-        var schedule = factory.Create(
+        var schedule = factory.CreateBuilder(
             TestDate(2025, 1, 1),
             TestTime(14, 0),
             TestTime(16, 0),
@@ -99,9 +99,9 @@ public class MonthlyScheduleTests : BaseScheduleTests
     public void MonthlySchedule_InvalidDays_ShouldSkip()
     {
         var clock = CreateClock(2025, 4, 1, 8, 0);
-        var factory = CreateFactory(clock);
+        var factory = CreateContext(clock);
 
-        var schedule = factory.Create(
+        var schedule = factory.CreateBuilder(
             TestDate(2025, 4, 1),
             TestTime(9, 0),
             TestTime(10, 0),
@@ -118,9 +118,9 @@ public class MonthlyScheduleTests : BaseScheduleTests
     public void MonthlySchedule_RelativeFifthMonday_ShouldHandleMissing()
     {
         var clock = CreateClock(2025, 3, 1, 8, 0);
-        var factory = CreateFactory(clock);
+        var factory = CreateContext(clock);
         
-        var schedule = factory.Create(
+        var schedule = factory.CreateBuilder(
             TestDate(2025, 3, 1),
             TestTime(10, 0),
             TestTime(11, 0),
@@ -137,9 +137,9 @@ public class MonthlyScheduleTests : BaseScheduleTests
     public void MonthlySchedule_Description_ShouldBeCorrect()
     {
         var clock = CreateClock(2025, 7, 15, 8, 0);
-        var factory = CreateFactory(clock);
+        var factory = CreateContext(clock);
         
-        var monthly = factory.Create(
+        var monthly = factory.CreateBuilder(
             TestDate(2025, 7, 15),
             TestTime(20, 0),
             TestTime(21, 0),
@@ -147,7 +147,7 @@ public class MonthlyScheduleTests : BaseScheduleTests
             .Monthly()
             .Build();
 
-        var relative = factory.Create(
+        var relative = factory.CreateBuilder(
             TestDate(2025, 8, 1),
             TestTime(18, 0),
             TestTime(21, 30),

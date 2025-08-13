@@ -8,9 +8,9 @@ public class WeeklyScheduleTests : BaseScheduleTests
     public void WeeklySchedule_BasicWeekly_ShouldReturnCorrectOccurrences()
     {
         var clock = CreateClock(2025, 8, 5, 8, 0);
-        var factory = CreateFactory(clock);
+        var factory = CreateContext(clock);
         
-        var schedule = factory.Create(
+        var schedule = factory.CreateBuilder(
             TestDate(2025, 8, 5),
             TestTime(18, 0),
             TestTime(19, 0),
@@ -38,9 +38,9 @@ public class WeeklyScheduleTests : BaseScheduleTests
     public void WeeklySchedule_MultipleDaysOfWeek_ShouldReturnCorrectOccurrences()
     {
         var clock = CreateClock(2025, 8, 4, 8, 0);
-        var factory = CreateFactory(clock);
+        var factory = CreateContext(clock);
         
-        var schedule = factory.Create(
+        var schedule = factory.CreateBuilder(
             TestDate(2025, 8, 4),
             TestTime(12, 0),
             TestTime(13, 0),
@@ -64,9 +64,9 @@ public class WeeklyScheduleTests : BaseScheduleTests
     public void WeeklySchedule_BiWeekly_ShouldSkipAlternateWeeks()
     {
         var clock = CreateClock(2025, 8, 3, 8, 0);
-        var factory = CreateFactory(clock);
+        var factory = CreateContext(clock);
         
-        var schedule = factory.Create(
+        var schedule = factory.CreateBuilder(
             TestDate(2025, 8, 3),
             TestTime(10, 0),
             TestTime(11, 0),
@@ -95,9 +95,9 @@ public class WeeklyScheduleTests : BaseScheduleTests
     public void WeeklySchedule_StartInMiddleOfWeek_ShouldHandleCorrectly()
     {
         var clock = CreateClock(2025, 8, 6, 8, 0);
-        var factory = CreateFactory(clock);
+        var factory = CreateContext(clock);
         
-        var schedule = factory.Create(
+        var schedule = factory.CreateBuilder(
             TestDate(2025, 8, 6),
             TestTime(12, 0),
             TestTime(13, 0),
@@ -118,9 +118,9 @@ public class WeeklyScheduleTests : BaseScheduleTests
     public void WeeklySchedule_AllDaysOfWeek_ShouldWork()
     {
         var clock = CreateClock(2025, 8, 4, 8, 0);
-        var factory = CreateFactory(clock);
+        var factory = CreateContext(clock);
         
-        var schedule = factory.Create(
+        var schedule = factory.CreateBuilder(
             TestDate(2025, 8, 4),
             TestTime(9, 0),
             TestTime(10, 0),
@@ -142,9 +142,9 @@ public class WeeklyScheduleTests : BaseScheduleTests
     public void WeeklySchedule_InvalidDaysOfWeek_ShouldIgnore()
     {
         var clock = CreateClock(2025, 8, 4, 8, 0);
-        var factory = CreateFactory(clock);
+        var factory = CreateContext(clock);
         
-        var schedule = factory.Create(
+        var schedule = factory.CreateBuilder(
             TestDate(2025, 8, 4),
             TestTime(9, 0),
             TestTime(10, 0),
@@ -163,9 +163,9 @@ public class WeeklyScheduleTests : BaseScheduleTests
     public void WeeklySchedule_SingleDaySpecified_ShouldWork()
     {
         var clock = CreateClock(2025, 8, 6, 8, 0);
-        var factory = CreateFactory(clock);
+        var factory = CreateContext(clock);
         
-        var schedule = factory.Create(
+        var schedule = factory.CreateBuilder(
             TestDate(2025, 8, 6),
             TestTime(14, 0),
             TestTime(15, 0),
@@ -187,9 +187,9 @@ public class WeeklyScheduleTests : BaseScheduleTests
     public void WeeklySchedule_AcrossMonthBoundary_ShouldWork()
     {
         var clock = CreateClock(2025, 7, 28, 8, 0);
-        var factory = CreateFactory(clock);
+        var factory = CreateContext(clock);
         
-        var schedule = factory.Create(
+        var schedule = factory.CreateBuilder(
             TestDate(2025, 7, 28),
             TestTime(9, 0),
             TestTime(17, 0),
@@ -211,9 +211,9 @@ public class WeeklyScheduleTests : BaseScheduleTests
     public void WeeklySchedule_WithEndDate_ShouldStopCorrectly()
     {
         var clock = CreateClock(2025, 8, 4, 8, 0);
-        var factory = CreateFactory(clock);
+        var factory = CreateContext(clock);
         
-        var schedule = factory.Create(
+        var schedule = factory.CreateBuilder(
             TestDate(2025, 8, 4),
             TestTime(9, 0),
             TestTime(17, 0),
@@ -232,9 +232,9 @@ public class WeeklyScheduleTests : BaseScheduleTests
     public void WeeklySchedule_DuringActiveOccurrence_ShouldReturnCurrent()
     {
         var clock = CreateClock(2025, 8, 6, 12, 30);
-        var factory = CreateFactory(clock);
+        var factory = CreateContext(clock);
         
-        var schedule = factory.Create(
+        var schedule = factory.CreateBuilder(
             TestDate(2025, 8, 6),
             TestTime(12, 0),
             TestTime(13, 0),
@@ -259,9 +259,9 @@ public class WeeklyScheduleTests : BaseScheduleTests
     public void WeeklySchedule_EachDayOfWeek_ShouldWork(int dayOfWeek)
     {
         var clock = CreateClock(2025, 8, 4, 8, 0);
-        var factory = CreateFactory(clock);
+        var factory = CreateContext(clock);
         
-        var schedule = factory.Create(
+        var schedule = factory.CreateBuilder(
             TestDate(2025, 8, 4),
             TestTime(10, 0),
             TestTime(11, 0),
@@ -282,9 +282,9 @@ public class WeeklyScheduleTests : BaseScheduleTests
     public void WeeklySchedule_Description_ShouldBeCorrect()
     {
         var clock = CreateClock(2025, 8, 5, 8, 0);
-        var factory = CreateFactory(clock);
+        var factory = CreateContext(clock);
         
-        var weeklySchedule = factory.Create(
+        var weeklySchedule = factory.CreateBuilder(
             TestDate(2025, 8, 5),
             TestTime(18, 0),
             TestTime(19, 0),
@@ -292,7 +292,7 @@ public class WeeklyScheduleTests : BaseScheduleTests
             .Weekly()
             .Build();
             
-        var multiDaySchedule = factory.Create(
+        var multiDaySchedule = factory.CreateBuilder(
             TestDate(2025, 8, 5),
             TestTime(18, 0),
             TestTime(19, 0),

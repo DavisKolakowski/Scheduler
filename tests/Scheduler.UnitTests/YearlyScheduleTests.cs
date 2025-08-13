@@ -9,9 +9,9 @@ public class YearlyScheduleTests : BaseScheduleTests
     public void YearlySchedule_BasicYearly_ShouldReturnCorrectOccurrences()
     {
         var clock = CreateClock(2024, 12, 25, 8, 0);
-        var factory = CreateFactory(clock);
+        var factory = CreateContext(clock);
         
-        var schedule = factory.Create(
+        var schedule = factory.CreateBuilder(
             TestDate(2024, 12, 25),
             TestTime(8, 0),
             TestTime(20, 0),
@@ -32,9 +32,9 @@ public class YearlyScheduleTests : BaseScheduleTests
     public void YearlySchedule_MultipleMonths_ShouldReturnCorrectOccurrences()
     {
         var clock = CreateClock(2025, 6, 15, 8, 0);
-        var factory = CreateFactory(clock);
+        var factory = CreateContext(clock);
         
-        var schedule = factory.Create(
+        var schedule = factory.CreateBuilder(
             TestDate(2025, 6, 15),
             TestTime(10, 0),
             TestTime(16, 0),
@@ -53,9 +53,9 @@ public class YearlyScheduleTests : BaseScheduleTests
     public void YearlySchedule_MultipleDaysInMonth_ShouldWork()
     {
         var clock = CreateClock(2025, 2, 1, 8, 0);
-        var factory = CreateFactory(clock);
+        var factory = CreateContext(clock);
         
-        var schedule = factory.Create(
+        var schedule = factory.CreateBuilder(
             TestDate(2025, 2, 1),
             TestTime(9, 0),
             TestTime(10, 0),
@@ -74,9 +74,9 @@ public class YearlyScheduleTests : BaseScheduleTests
     public void YearlySchedule_RelativeFirstWeekendDay_ShouldWork()
     {
         var clock = CreateClock(2024, 1, 6, 8, 0);
-        var factory = CreateFactory(clock);
+        var factory = CreateContext(clock);
         
-        var schedule = factory.Create(
+        var schedule = factory.CreateBuilder(
             TestDate(2024, 1, 6),
             TestTime(9, 0),
             TestTime(17, 0),
@@ -103,9 +103,9 @@ public class YearlyScheduleTests : BaseScheduleTests
     public void YearlySchedule_WithInterval_ShouldSkipYears()
     {
         var clock = CreateClock(2024, 1, 6, 8, 0);
-        var factory = CreateFactory(clock);
+        var factory = CreateContext(clock);
         
-        var schedule = factory.Create(
+        var schedule = factory.CreateBuilder(
             TestDate(2024, 1, 6),
             TestTime(9, 0),
             TestTime(17, 0),
@@ -128,9 +128,9 @@ public class YearlyScheduleTests : BaseScheduleTests
     public void YearlySchedule_LeapYear_February29_ShouldWork()
     {
         var clock = CreateClock(2024, 2, 29, 8, 0);
-        var factory = CreateFactory(clock);
+        var factory = CreateContext(clock);
         
-        var schedule = factory.Create(
+        var schedule = factory.CreateBuilder(
             TestDate(2024, 2, 29),
             TestTime(12, 0),
             TestTime(13, 0),
@@ -152,9 +152,9 @@ public class YearlyScheduleTests : BaseScheduleTests
     public void YearlySchedule_RelativeLastSunday_InMultipleMonths_ShouldWork()
     {
         var clock = CreateClock(2025, 3, 1, 8, 0);
-        var factory = CreateFactory(clock);
+        var factory = CreateContext(clock);
         
-        var schedule = factory.Create(
+        var schedule = factory.CreateBuilder(
             TestDate(2025, 3, 1),
             TestTime(14, 0),
             TestTime(15, 0),
@@ -177,9 +177,9 @@ public class YearlyScheduleTests : BaseScheduleTests
     public void YearlySchedule_AllMonths_Day15_ShouldWork()
     {
         var clock = CreateClock(2025, 1, 15, 8, 0);
-        var factory = CreateFactory(clock);
+        var factory = CreateContext(clock);
         
-        var schedule = factory.Create(
+        var schedule = factory.CreateBuilder(
             TestDate(2025, 1, 15),
             TestTime(10, 0),
             TestTime(11, 0),
@@ -202,9 +202,9 @@ public class YearlyScheduleTests : BaseScheduleTests
     public void YearlySchedule_InvalidMonths_ShouldIgnore()
     {
         var clock = CreateClock(2025, 1, 1, 8, 0);
-        var factory = CreateFactory(clock);
+        var factory = CreateContext(clock);
         
-        var schedule = factory.Create(
+        var schedule = factory.CreateBuilder(
             TestDate(2025, 1, 1),
             TestTime(10, 0),
             TestTime(11, 0),
@@ -221,9 +221,9 @@ public class YearlyScheduleTests : BaseScheduleTests
     public void YearlySchedule_StartInPast_ShouldCalculateCorrectNext()
     {
         var clock = CreateClock(2027, 6, 10, 8, 0);
-        var factory = CreateFactory(clock);
+        var factory = CreateContext(clock);
         
-        var schedule = factory.Create(
+        var schedule = factory.CreateBuilder(
             TestDate(2024, 12, 25),
             TestTime(10, 0),
             TestTime(11, 0),
@@ -245,9 +245,9 @@ public class YearlyScheduleTests : BaseScheduleTests
     public void YearlySchedule_InvalidDaysOfMonth_ShouldSkipInvalidDates()
     {
         var clock = CreateClock(2025, 1, 31, 8, 0);
-        var factory = CreateFactory(clock);
+        var factory = CreateContext(clock);
         
-        var schedule = factory.Create(
+        var schedule = factory.CreateBuilder(
             TestDate(2025, 1, 31),
             TestTime(12, 0),
             TestTime(13, 0),
@@ -267,9 +267,9 @@ public class YearlyScheduleTests : BaseScheduleTests
     public void YearlySchedule_EveryFiveYears_ShouldWork()
     {
         var clock = CreateClock(2020, 1, 1, 8, 0);
-        var factory = CreateFactory(clock);
+        var factory = CreateContext(clock);
         
-        var schedule = factory.Create(
+        var schedule = factory.CreateBuilder(
             TestDate(2020, 1, 1),
             TestTime(0, 0),
             TestTime(23, 59),
@@ -285,9 +285,9 @@ public class YearlyScheduleTests : BaseScheduleTests
     public void YearlySchedule_Description_ShouldBeCorrect()
     {
         var clock = CreateClock(2024, 12, 25, 8, 0);
-        var factory = CreateFactory(clock);
+        var factory = CreateContext(clock);
         
-        var yearly = factory.Create(
+        var yearly = factory.CreateBuilder(
             TestDate(2024, 12, 25),
             TestTime(8, 0),
             TestTime(20, 0),
@@ -295,7 +295,7 @@ public class YearlyScheduleTests : BaseScheduleTests
             .Yearly()
             .Build();
 
-        var multiMonth = factory.Create(
+        var multiMonth = factory.CreateBuilder(
             TestDate(2024, 12, 25),
             TestTime(8, 0),
             TestTime(20, 0),
@@ -303,7 +303,7 @@ public class YearlyScheduleTests : BaseScheduleTests
             .Yearly(o => o.UseMonthsOfYear(list => list.AddRange(new[] { 6, 12 })))
             .Build();
 
-        var relative = factory.Create(
+        var relative = factory.CreateBuilder(
             TestDate(2024, 12, 25),
             TestTime(8, 0),
             TestTime(20, 0),
@@ -328,9 +328,9 @@ public class YearlyScheduleTests : BaseScheduleTests
     public void YearlySchedule_AllRelativeIndexes_ShouldWork(RelativeIndex index)
     {
         var clock = CreateClock(2025, 1, 1, 8, 0);
-        var factory = CreateFactory(clock);
+        var factory = CreateContext(clock);
         
-        var schedule = factory.Create(
+        var schedule = factory.CreateBuilder(
             TestDate(2025, 1, 1),
             TestTime(10, 0),
             TestTime(11, 0),

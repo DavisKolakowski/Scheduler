@@ -1,18 +1,17 @@
 using NodaTime;
 using Scheduler.Core.Contexts;
-using Scheduler.Core.Factories;
 
 namespace Scheduler.UnitTests;
 
-public class ScheduleContextTests : BaseScheduleTests
+public class ScheduleTests : BaseScheduleTests
 {
     [Fact]
-    public void ScheduleContext_CreateBuilder_ShouldReturnValidBuilder()
+    public void Schedule_CreateBuilder_ShouldReturnValidBuilder()
     {
         var clock = CreateClock(2025, 1, 1, 12, 0);
-        var factory = CreateFactory(clock);
+        var context = CreateContext(clock);
 
-        var builder = factory.Create(
+        var builder = context.CreateBuilder(
             TestDate(2025, 1, 1),
             TestTime(10, 0),
             TestTime(11, 0),
@@ -22,15 +21,15 @@ public class ScheduleContextTests : BaseScheduleTests
     }
 
     [Fact]
-    public void ScheduleContext_WithDifferentClocks_ShouldRespectClock()
+    public void Schedule_WithDifferentClocks_ShouldRespectClock()
     {
         var clock1 = CreateClock(2025, 1, 1, 16, 0);
         var clock2 = CreateClock(2025, 1, 1, 20, 0);
         
-        var factory1 = CreateFactory(clock1);
-        var factory2 = CreateFactory(clock2);
+        var context1 = CreateContext(clock1);
+        var context2 = CreateContext(clock2);
 
-        var schedule1 = factory1.Create(
+        var schedule1 = context1.CreateBuilder(
             TestDate(2025, 1, 1),
             TestTime(10, 0),
             TestTime(11, 0),
@@ -38,7 +37,7 @@ public class ScheduleContextTests : BaseScheduleTests
             .OneTime()
             .Build();
 
-        var schedule2 = factory2.Create(
+        var schedule2 = context2.CreateBuilder(
             TestDate(2025, 1, 1),
             TestTime(10, 0),
             TestTime(11, 0),
@@ -59,13 +58,13 @@ public class ScheduleContextTests : BaseScheduleTests
     [InlineData("Europe/London")]
     [InlineData("Asia/Tokyo")]
     [InlineData("UTC")]
-    public void ScheduleContext_DifferentTimeZones_ShouldWork(string timeZoneId)
+    public void Schedule_DifferentTimeZones_ShouldWork(string timeZoneId)
     {
         var clock = CreateClock(2025, 1, 1, 12, 0);
-        var factory = CreateFactory(clock);
+        var context = CreateContext(clock);
         var timeZone = DateTimeZoneProviders.Tzdb[timeZoneId];
 
-        var schedule = factory.Create(
+        var schedule = context.CreateBuilder(
             TestDate(2025, 1, 1),
             TestTime(10, 0),
             TestTime(11, 0),
@@ -78,12 +77,12 @@ public class ScheduleContextTests : BaseScheduleTests
     }
 
     [Fact]
-    public void ScheduleContext_BuilderChaining_ShouldWork()
+    public void Schedule_BuilderChaining_ShouldWork()
     {
         var clock = CreateClock(2025, 1, 1, 8, 0);
-        var factory = CreateFactory(clock);
+        var context = CreateContext(clock);
 
-        var schedule = factory.Create(
+        var schedule = context.CreateBuilder(
                 TestDate(2025, 1, 1),
                 TestTime(10, 0),
                 TestTime(11, 0),
@@ -96,18 +95,18 @@ public class ScheduleContextTests : BaseScheduleTests
     }
 
     [Fact]
-    public void ScheduleContext_NullClock_ShouldThrow()
+    public void Schedule_NullClock_ShouldThrow()
     {
-        Assert.Throws<ArgumentNullException>(() => new ScheduleBuilderFactory(null!));
+        Assert.Throws<ArgumentNullException>(() => new ScheduleContext(null!));
     }
 
     [Fact]
-    public void ScheduleContext_InvalidTimeRange_EndBeforeStart_ShouldCreateOvernightSchedule()
+    public void Schedule_InvalidTimeRange_EndBeforeStart_ShouldCreateOvernightSchedule()
     {
         var clock = CreateClock(2025, 1, 1, 8, 0);
-        var factory = CreateFactory(clock);
+        var context = CreateContext(clock);
 
-        var schedule = factory.Create(
+        var schedule = context.CreateBuilder(
             TestDate(2025, 1, 1),
             TestTime(22, 0),
             TestTime(2, 0),
@@ -120,12 +119,12 @@ public class ScheduleContextTests : BaseScheduleTests
     }
 
     [Fact]
-    public void ScheduleContext_SameStartEndTime_ShouldCreateZeroDurationSchedule()
+    public void Schedule_SameStartEndTime_ShouldCreateZeroDurationSchedule()
     {
         var clock = CreateClock(2025, 1, 1, 8, 0);
-        var factory = CreateFactory(clock);
+        var context = CreateContext(clock);
 
-        var schedule = factory.Create(
+        var schedule = context.CreateBuilder(
             TestDate(2025, 1, 1),
             TestTime(10, 0),
             TestTime(10, 0),

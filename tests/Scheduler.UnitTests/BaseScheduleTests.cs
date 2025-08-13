@@ -1,6 +1,7 @@
 using NodaTime;
 using NodaTime.Testing;
-using Scheduler.Core.Factories;
+
+using Scheduler.Core.Contexts;
 
 namespace Scheduler.UnitTests;
 
@@ -18,7 +19,7 @@ public abstract class BaseScheduleTests
         return new FakeClock(instant);
     }
 
-    protected ScheduleBuilderFactory CreateFactory(IClock clock) => new(clock);
+    protected ScheduleContext CreateContext(IClock clock) => new(clock);
 
     protected LocalDate TestDate(int year, int month, int day) => new(year, month, day);
 
