@@ -1,9 +1,6 @@
 using NodaTime;
 using NodaTime.Testing;
-
-using Scheduler.Core;
-using Scheduler.Core.Contracts;
-using Scheduler.Core.Options;
+using Scheduler.Core.Factories;
 
 namespace Scheduler.UnitTests;
 
@@ -21,7 +18,7 @@ public abstract class BaseScheduleTests
         return new FakeClock(instant);
     }
 
-    protected ScheduleContext CreateContext(IClock clock) => new(clock);
+    protected ScheduleBuilderFactory CreateFactory(IClock clock) => new(clock);
 
     protected LocalDate TestDate(int year, int month, int day) => new(year, month, day);
 
@@ -41,9 +38,9 @@ public abstract class BaseScheduleTests
     {
         var expectedList = expected.ToList();
         var actualList = actual.ToList();
-        
+
         Assert.Equal(expectedList.Count, actualList.Count);
-        
+
         for (int i = 0; i < expectedList.Count; i++)
         {
             Assert.Equal(expectedList[i].ToInstant(), actualList[i].ToInstant());

@@ -1,6 +1,10 @@
 namespace Scheduler.Core.Models.Schedules.Base
 {
+    using System;
+
     using NodaTime;
+
+    using Scheduler.Core.Builders;
     using Scheduler.Core.Contracts;
 
     public abstract class Schedule

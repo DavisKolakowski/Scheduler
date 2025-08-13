@@ -1,7 +1,4 @@
 using NodaTime;
-using NodaTime.Testing;
-using Scheduler.Core;
-using Scheduler.Core.Contracts;
 
 namespace Scheduler.UnitTests;
 
@@ -11,14 +8,13 @@ public class DailyScheduleTests : BaseScheduleTests
     public void DailySchedule_BasicDaily_ShouldReturnCorrectOccurrences()
     {
         var clock = CreateClock(2025, 8, 1, 8, 0);
-        var context = CreateContext(clock);
+        var factory = CreateFactory(clock);
         
-        var schedule = context.CreateBuilder(
+        var schedule = factory.Create(
             TestDate(2025, 8, 1),
             TestTime(9, 0),
             TestTime(17, 0),
             TestTimeZone)
-            .Recurring()
             .Daily()
             .Build();
 
@@ -39,14 +35,13 @@ public class DailyScheduleTests : BaseScheduleTests
     public void DailySchedule_WithInterval_ShouldSkipCorrectDays()
     {
         var clock = CreateClock(2025, 8, 1, 8, 0);
-        var context = CreateContext(clock);
+        var factory = CreateFactory(clock);
         
-        var schedule = context.CreateBuilder(
+        var schedule = factory.Create(
             TestDate(2025, 8, 1),
             TestTime(9, 0),
             TestTime(17, 0),
             TestTimeZone)
-            .Recurring()
             .Daily(o => o.Interval = 3)
             .Build();
 
@@ -62,14 +57,14 @@ public class DailyScheduleTests : BaseScheduleTests
     public void DailySchedule_WithEndDate_ShouldStopAtEndDate()
     {
         var clock = CreateClock(2025, 8, 1, 8, 0);
-        var context = CreateContext(clock);
+        var factory = CreateFactory(clock);
         
-        var schedule = context.CreateBuilder(
+        var schedule = factory.Create(
             TestDate(2025, 8, 1),
             TestTime(9, 0),
             TestTime(17, 0),
-            TestTimeZone)
-            .Recurring(TestDate(2025, 8, 5))
+            TestTimeZone,
+            TestDate(2025, 8, 5))
             .Daily()
             .Build();
 
@@ -83,18 +78,17 @@ public class DailyScheduleTests : BaseScheduleTests
     public void DailySchedule_StartDateInPast_ShouldCalculateCorrectNext()
     {
         var clock = CreateClock(2025, 8, 10, 8, 0);
-        var context = CreateContext(clock);
+        var factory = CreateFactory(clock);
         
-        var schedule = context.CreateBuilder(
+        var schedule = factory.Create(
             TestDate(2025, 8, 1),
             TestTime(9, 0),
             TestTime(17, 0),
             TestTimeZone)
-            .Recurring()
             .Daily()
             .Build();
 
-        var completed = schedule.GetPreviousOccurrences(5).ToList();
+        var completed = schedule.GetCompletedOccurrences(5).ToList();
 
         Assert.NotNull(schedule.NextOccurrence);
         Assert.Equal(10, schedule.NextOccurrence.Value.Day);
@@ -105,14 +99,13 @@ public class DailyScheduleTests : BaseScheduleTests
     public void DailySchedule_WithIntervalStartInPast_ShouldCalculateCorrectNext()
     {
         var clock = CreateClock(2025, 8, 10, 8, 0);
-        var context = CreateContext(clock);
+        var factory = CreateFactory(clock);
         
-        var schedule = context.CreateBuilder(
+        var schedule = factory.Create(
             TestDate(2025, 8, 1),
             TestTime(9, 0),
             TestTime(17, 0),
             TestTimeZone)
-            .Recurring()
             .Daily(o => o.Interval = 3)
             .Build();
 
@@ -124,14 +117,13 @@ public class DailyScheduleTests : BaseScheduleTests
     public void DailySchedule_DuringActiveOccurrence_ShouldReturnCurrentAsNext()
     {
         var clock = CreateClock(2025, 8, 1, 12, 0);
-        var context = CreateContext(clock);
+        var factory = CreateFactory(clock);
         
-        var schedule = context.CreateBuilder(
+        var schedule = factory.Create(
             TestDate(2025, 8, 1),
             TestTime(9, 0),
             TestTime(17, 0),
             TestTimeZone)
-            .Recurring()
             .Daily()
             .Build();
 
@@ -143,14 +135,13 @@ public class DailyScheduleTests : BaseScheduleTests
     public void DailySchedule_AfterDailyOccurrence_ShouldReturnTomorrow()
     {
         var clock = CreateClock(2025, 8, 1, 22, 0);
-        var context = CreateContext(clock);
+        var factory = CreateFactory(clock);
         
-        var schedule = context.CreateBuilder(
+        var schedule = factory.Create(
             TestDate(2025, 8, 1),
             TestTime(9, 0),
             TestTime(17, 0),
             TestTimeZone)
-            .Recurring()
             .Daily()
             .Build();
 
@@ -164,14 +155,13 @@ public class DailyScheduleTests : BaseScheduleTests
     public void DailySchedule_AcrossMonthBoundary_ShouldWork()
     {
         var clock = CreateClock(2025, 7, 30, 8, 0);
-        var context = CreateContext(clock);
+        var factory = CreateFactory(clock);
         
-        var schedule = context.CreateBuilder(
+        var schedule = factory.Create(
             TestDate(2025, 7, 30),
             TestTime(9, 0),
             TestTime(17, 0),
             TestTimeZone)
-            .Recurring()
             .Daily()
             .Build();
 
@@ -189,14 +179,13 @@ public class DailyScheduleTests : BaseScheduleTests
     public void DailySchedule_AcrossYearBoundary_ShouldWork()
     {
         var clock = CreateClock(2024, 12, 30, 8, 0);
-        var context = CreateContext(clock);
+        var factory = CreateFactory(clock);
         
-        var schedule = context.CreateBuilder(
+        var schedule = factory.Create(
             TestDate(2024, 12, 30),
             TestTime(9, 0),
             TestTime(17, 0),
             TestTimeZone)
-            .Recurring()
             .Daily()
             .Build();
 
@@ -214,14 +203,13 @@ public class DailyScheduleTests : BaseScheduleTests
     public void DailySchedule_LeapYear_ShouldHandleFebruary29()
     {
         var clock = CreateClock(2024, 2, 28, 8, 0);
-        var context = CreateContext(clock);
+        var factory = CreateFactory(clock);
         
-        var schedule = context.CreateBuilder(
+        var schedule = factory.Create(
             TestDate(2024, 2, 28),
             TestTime(9, 0),
             TestTime(17, 0),
             TestTimeZone)
-            .Recurring()
             .Daily()
             .Build();
 
@@ -242,14 +230,13 @@ public class DailyScheduleTests : BaseScheduleTests
     public void DailySchedule_VariousIntervals_ShouldWork(int interval)
     {
         var clock = CreateClock(2025, 8, 1, 8, 0);
-        var context = CreateContext(clock);
+        var factory = CreateFactory(clock);
         
-        var schedule = context.CreateBuilder(
+        var schedule = factory.Create(
             TestDate(2025, 8, 1),
             TestTime(9, 0),
             TestTime(17, 0),
             TestTimeZone)
-            .Recurring()
             .Daily(o => o.Interval = interval)
             .Build();
 
@@ -268,23 +255,21 @@ public class DailyScheduleTests : BaseScheduleTests
     public void DailySchedule_Description_ShouldBeCorrect()
     {
         var clock = CreateClock(2025, 8, 1, 8, 0);
-        var context = CreateContext(clock);
+        var factory = CreateFactory(clock);
         
-        var dailySchedule = context.CreateBuilder(
+        var dailySchedule = factory.Create(
             TestDate(2025, 8, 1),
             TestTime(9, 0),
             TestTime(17, 0),
             TestTimeZone)
-            .Recurring()
             .Daily()
             .Build();
             
-        var intervalSchedule = context.CreateBuilder(
+        var intervalSchedule = factory.Create(
             TestDate(2025, 8, 1),
             TestTime(9, 0),
             TestTime(17, 0),
             TestTimeZone)
-            .Recurring()
             .Daily(o => o.Interval = 3)
             .Build();
 

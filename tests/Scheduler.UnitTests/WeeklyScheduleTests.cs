@@ -1,8 +1,4 @@
 using NodaTime;
-using NodaTime.Testing;
-using Scheduler.Core;
-using Scheduler.Core.Contracts;
-using Scheduler.Core.Options;
 
 namespace Scheduler.UnitTests;
 
@@ -12,28 +8,24 @@ public class WeeklyScheduleTests : BaseScheduleTests
     public void WeeklySchedule_BasicWeekly_ShouldReturnCorrectOccurrences()
     {
         var clock = CreateClock(2025, 8, 5, 8, 0);
-        var context = CreateContext(clock);
+        var factory = CreateFactory(clock);
         
-        var schedule = context.CreateBuilder(
+        var schedule = factory.Create(
             TestDate(2025, 8, 5),
             TestTime(18, 0),
             TestTime(19, 0),
             TestTimeZone)
-            .Recurring()
             .Weekly()
             .Build();
 
-        var nextOccurrence = schedule.GetNextOccurrence();
+        var nextOccurrence = schedule.NextOccurrence;
         var upcoming = schedule.GetUpcomingOccurrences(4).ToList();
 
         Assert.Equal("Weekly", schedule.Type);
         Assert.NotNull(nextOccurrence);
         Assert.Equal(4, upcoming.Count);
         
-        Assert.Equal(IsoDayOfWeek.Tuesday, upcoming[0].DayOfWeek);
-        Assert.Equal(IsoDayOfWeek.Tuesday, upcoming[1].DayOfWeek);
-        Assert.Equal(IsoDayOfWeek.Tuesday, upcoming[2].DayOfWeek);
-        Assert.Equal(IsoDayOfWeek.Tuesday, upcoming[3].DayOfWeek);
+        Assert.All(upcoming, o => Assert.Equal(IsoDayOfWeek.Tuesday, o.DayOfWeek));
         
         for (int i = 0; i < upcoming.Count - 1; i++)
         {
@@ -46,14 +38,13 @@ public class WeeklyScheduleTests : BaseScheduleTests
     public void WeeklySchedule_MultipleDaysOfWeek_ShouldReturnCorrectOccurrences()
     {
         var clock = CreateClock(2025, 8, 4, 8, 0);
-        var context = CreateContext(clock);
+        var factory = CreateFactory(clock);
         
-        var schedule = context.CreateBuilder(
+        var schedule = factory.Create(
             TestDate(2025, 8, 4),
             TestTime(12, 0),
             TestTime(13, 0),
             TestTimeZone)
-            .Recurring()
             .Weekly(o => o.UseDaysOfWeek(list => list.AddRange(new[] { 1, 3, 5 })))
             .Build();
 
@@ -73,14 +64,13 @@ public class WeeklyScheduleTests : BaseScheduleTests
     public void WeeklySchedule_BiWeekly_ShouldSkipAlternateWeeks()
     {
         var clock = CreateClock(2025, 8, 3, 8, 0);
-        var context = CreateContext(clock);
+        var factory = CreateFactory(clock);
         
-        var schedule = context.CreateBuilder(
+        var schedule = factory.Create(
             TestDate(2025, 8, 3),
             TestTime(10, 0),
             TestTime(11, 0),
             TestTimeZone)
-            .Recurring()
             .Weekly(o =>
             {
                 o.Interval = 2;
@@ -105,14 +95,13 @@ public class WeeklyScheduleTests : BaseScheduleTests
     public void WeeklySchedule_StartInMiddleOfWeek_ShouldHandleCorrectly()
     {
         var clock = CreateClock(2025, 8, 6, 8, 0);
-        var context = CreateContext(clock);
+        var factory = CreateFactory(clock);
         
-        var schedule = context.CreateBuilder(
+        var schedule = factory.Create(
             TestDate(2025, 8, 6),
             TestTime(12, 0),
             TestTime(13, 0),
             TestTimeZone)
-            .Recurring()
             .Weekly(o => o.UseDaysOfWeek(list => list.AddRange(new[] { 1, 3, 5 })))
             .Build();
 
@@ -129,14 +118,13 @@ public class WeeklyScheduleTests : BaseScheduleTests
     public void WeeklySchedule_AllDaysOfWeek_ShouldWork()
     {
         var clock = CreateClock(2025, 8, 4, 8, 0);
-        var context = CreateContext(clock);
+        var factory = CreateFactory(clock);
         
-        var schedule = context.CreateBuilder(
+        var schedule = factory.Create(
             TestDate(2025, 8, 4),
             TestTime(9, 0),
             TestTime(10, 0),
             TestTimeZone)
-            .Recurring()
             .Weekly(o => o.UseDaysOfWeek(list => list.AddRange(new[] { 1, 2, 3, 4, 5, 6, 7 })))
             .Build();
 
@@ -154,14 +142,13 @@ public class WeeklyScheduleTests : BaseScheduleTests
     public void WeeklySchedule_InvalidDaysOfWeek_ShouldIgnore()
     {
         var clock = CreateClock(2025, 8, 4, 8, 0);
-        var context = CreateContext(clock);
+        var factory = CreateFactory(clock);
         
-        var schedule = context.CreateBuilder(
+        var schedule = factory.Create(
             TestDate(2025, 8, 4),
             TestTime(9, 0),
             TestTime(10, 0),
             TestTimeZone)
-            .Recurring()
             .Weekly(o => o.UseDaysOfWeek(list => list.AddRange(new[] { 0, 1, 8, 3, -1, 5 })))
             .Build();
 
@@ -176,14 +163,13 @@ public class WeeklyScheduleTests : BaseScheduleTests
     public void WeeklySchedule_SingleDaySpecified_ShouldWork()
     {
         var clock = CreateClock(2025, 8, 6, 8, 0);
-        var context = CreateContext(clock);
+        var factory = CreateFactory(clock);
         
-        var schedule = context.CreateBuilder(
+        var schedule = factory.Create(
             TestDate(2025, 8, 6),
             TestTime(14, 0),
             TestTime(15, 0),
             TestTimeZone)
-            .Recurring()
             .Weekly(o => o.UseDaysOfWeek(list => list.Add(3)))
             .Build();
 
@@ -201,14 +187,13 @@ public class WeeklyScheduleTests : BaseScheduleTests
     public void WeeklySchedule_AcrossMonthBoundary_ShouldWork()
     {
         var clock = CreateClock(2025, 7, 28, 8, 0);
-        var context = CreateContext(clock);
+        var factory = CreateFactory(clock);
         
-        var schedule = context.CreateBuilder(
+        var schedule = factory.Create(
             TestDate(2025, 7, 28),
             TestTime(9, 0),
             TestTime(17, 0),
             TestTimeZone)
-            .Recurring()
             .Weekly(o => o.UseDaysOfWeek(list => list.AddRange(new[] { 1, 5 })))
             .Build();
 
@@ -226,14 +211,14 @@ public class WeeklyScheduleTests : BaseScheduleTests
     public void WeeklySchedule_WithEndDate_ShouldStopCorrectly()
     {
         var clock = CreateClock(2025, 8, 4, 8, 0);
-        var context = CreateContext(clock);
+        var factory = CreateFactory(clock);
         
-        var schedule = context.CreateBuilder(
+        var schedule = factory.Create(
             TestDate(2025, 8, 4),
             TestTime(9, 0),
             TestTime(17, 0),
-            TestTimeZone)
-            .Recurring(TestDate(2025, 8, 15))
+            TestTimeZone,
+            TestDate(2025, 8, 15))
             .Weekly(o => o.UseDaysOfWeek(list => list.AddRange(new[] { 1, 3, 5 })))
             .Build();
 
@@ -247,18 +232,17 @@ public class WeeklyScheduleTests : BaseScheduleTests
     public void WeeklySchedule_DuringActiveOccurrence_ShouldReturnCurrent()
     {
         var clock = CreateClock(2025, 8, 6, 12, 30);
-        var context = CreateContext(clock);
+        var factory = CreateFactory(clock);
         
-        var schedule = context.CreateBuilder(
+        var schedule = factory.Create(
             TestDate(2025, 8, 6),
             TestTime(12, 0),
             TestTime(13, 0),
             TestTimeZone)
-            .Recurring()
             .Weekly(o => o.UseDaysOfWeek(list => list.Add(3)))
             .Build();
 
-        var nextOccurrence = schedule.GetNextOccurrence();
+        var nextOccurrence = schedule.NextOccurrence;
 
         Assert.NotNull(nextOccurrence);
         Assert.Equal(6, nextOccurrence.Value.Day);
@@ -275,14 +259,13 @@ public class WeeklyScheduleTests : BaseScheduleTests
     public void WeeklySchedule_EachDayOfWeek_ShouldWork(int dayOfWeek)
     {
         var clock = CreateClock(2025, 8, 4, 8, 0);
-        var context = CreateContext(clock);
+        var factory = CreateFactory(clock);
         
-        var schedule = context.CreateBuilder(
+        var schedule = factory.Create(
             TestDate(2025, 8, 4),
             TestTime(10, 0),
             TestTime(11, 0),
             TestTimeZone)
-            .Recurring()
             .Weekly(o => o.UseDaysOfWeek(list => list.Add(dayOfWeek)))
             .Build();
 
@@ -299,23 +282,21 @@ public class WeeklyScheduleTests : BaseScheduleTests
     public void WeeklySchedule_Description_ShouldBeCorrect()
     {
         var clock = CreateClock(2025, 8, 5, 8, 0);
-        var context = CreateContext(clock);
+        var factory = CreateFactory(clock);
         
-        var weeklySchedule = context.CreateBuilder(
+        var weeklySchedule = factory.Create(
             TestDate(2025, 8, 5),
             TestTime(18, 0),
             TestTime(19, 0),
             TestTimeZone)
-            .Recurring()
             .Weekly()
             .Build();
             
-        var multiDaySchedule = context.CreateBuilder(
+        var multiDaySchedule = factory.Create(
             TestDate(2025, 8, 5),
             TestTime(18, 0),
             TestTime(19, 0),
             TestTimeZone)
-            .Recurring()
             .Weekly(o => o.UseDaysOfWeek(list => list.AddRange(new[] { 1, 3, 5 })))
             .Build();
 

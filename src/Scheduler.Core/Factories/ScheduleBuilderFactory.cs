@@ -7,16 +7,16 @@ namespace Scheduler.Core.Factories
     using Scheduler.Core.Builders;
     using Scheduler.Core.Contracts;
 
-    public class ScheduleFactory
+    public class ScheduleBuilderFactory
     {
         private readonly IClock _clock;
 
-        public ScheduleFactory(IClock clock)
+        public ScheduleBuilderFactory(IClock clock)
         {
             _clock = clock ?? throw new ArgumentNullException(nameof(clock));
         }
 
-        public ScheduleBuilder CreateBuilder(LocalDate startDate, LocalTime startTime, LocalTime endTime, DateTimeZone timeZone, LocalDate? endDate = null)
+        public ScheduleBuilder Create(LocalDate startDate, LocalTime startTime, LocalTime endTime, DateTimeZone timeZone, LocalDate? endDate = null)
         {
             return new ScheduleBuilder(_clock, startDate, startTime, endTime, timeZone, endDate);
         }
