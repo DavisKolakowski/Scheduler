@@ -1,6 +1,4 @@
-﻿using Scheduler.Core.Models;
-
-namespace Scheduler.Core.Contexts
+﻿namespace Scheduler.Core.Models
 {
     using System;
     using System.Collections.Generic;
@@ -14,17 +12,17 @@ namespace Scheduler.Core.Contexts
 
     using Scheduler.Core.Contracts;
     using Scheduler.Core.Enums;
-    using Scheduler.Core.Models.Schedules;
-    using Scheduler.Core.Models.Schedules.Base;
+    using Scheduler.Core.Models.Frequencies;
+    using Scheduler.Core.Models.Frequencies.Base;
     using Scheduler.Core.Utilities;
 
-    public class ScheduleContext<TModel> : ISchedule<TModel> where TModel : Frequency
+    public class Schedule<TModel> : ISchedule<TModel> where TModel : Frequency
     {
         private readonly IClock _clock;
         private readonly Duration _duration;
         private readonly ZonedDateTime? _expiration;
 
-        public ScheduleContext(TModel model, IClock clock)
+        public Schedule(TModel model, IClock clock)
         {
             Model = model;
             _clock = clock;

@@ -6,6 +6,8 @@ using System.Text.Json;
 using System.Text.Json.Serialization.Metadata;
 using System.Threading.Tasks;
 
+using Microsoft.Extensions.Options;
+
 using NodaTime;
 using NodaTime.Serialization.SystemTextJson;
 using NodaTime.Testing;
@@ -14,8 +16,8 @@ using Scheduler.Core;
 using Scheduler.Core.Contracts;
 using Scheduler.Core.Enums;
 using Scheduler.Core.Factories;
-using Scheduler.Core.Models.Schedules;
-using Scheduler.Core.Models.Schedules.Base;
+using Scheduler.Core.Models.Frequencies;
+using Scheduler.Core.Models.Frequencies.Base;
 
 namespace Scheduler.Demo;
 public static class ScheduleDemos

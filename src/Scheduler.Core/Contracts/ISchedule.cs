@@ -7,7 +7,7 @@
     using NodaTime;
 
     using Scheduler.Core.Models;
-    using Scheduler.Core.Models.Schedules.Base;
+    using Scheduler.Core.Models.Frequencies.Base;
 
     public interface ISchedule<out TModel> where TModel : Frequency
     {

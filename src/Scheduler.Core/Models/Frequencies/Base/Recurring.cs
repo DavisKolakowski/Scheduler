@@ -1,4 +1,4 @@
-namespace Scheduler.Core.Models.Schedules.Base
+namespace Scheduler.Core.Models.Frequencies.Base
 {
     using System;
 

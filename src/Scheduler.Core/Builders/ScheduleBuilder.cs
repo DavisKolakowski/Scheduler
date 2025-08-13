@@ -3,7 +3,7 @@
     using System;
     using NodaTime;
     using Scheduler.Core.Contracts;
-    using Scheduler.Core.Models.Schedules;
+    using Scheduler.Core.Models.Frequencies;
 
     public class ScheduleBuilder
     {
@@ -30,42 +30,42 @@
             _endDate = endDate;
         }
 
-        public OneTimeBuilder OneTime()
+        public FrequencyBuilder<OneTime> OneTime()
         {
             var model = new OneTime();
-            var builder = new RecurringBuilder<OneTime>(model, _clock, _startDate, _startTime, _endTime, _timeZone, _endDate);
-            return new OneTimeBuilder(builder);
+            return new FrequencyBuilder<OneTime>(model, _clock, _startDate, _startTime, _endTime, _timeZone, _endDate);
+
         }
 
-        public RecurringBuilder<Daily> Daily(Action<Daily>? configure = null)
+        public FrequencyBuilder<Daily> Daily(Action<Daily>? configure = null)
         {
             var model = new Daily();
             configure?.Invoke(model);
-            return new RecurringBuilder<Daily>(model, _clock, _startDate, _startTime, _endTime, _timeZone, _endDate);
+            return new FrequencyBuilder<Daily>(model, _clock, _startDate, _startTime, _endTime, _timeZone, _endDate);
         }
 
-        public RecurringBuilder<Weekly> Weekly(Action<Weekly>? configure = null)
+        public FrequencyBuilder<Weekly> Weekly(Action<Weekly>? configure = null)
         {
             var model = new Weekly();
             model.Initialize((int)_startDate.DayOfWeek);
             configure?.Invoke(model);
-            return new RecurringBuilder<Weekly>(model, _clock, _startDate, _startTime, _endTime, _timeZone, _endDate);
+            return new FrequencyBuilder<Weekly>(model, _clock, _startDate, _startTime, _endTime, _timeZone, _endDate);
         }
 
-        public RecurringBuilder<Monthly> Monthly(Action<Monthly>? configure = null)
+        public FrequencyBuilder<Monthly> Monthly(Action<Monthly>? configure = null)
         {
             var model = new Monthly();
             model.Initialize(_startDate.Day);
             configure?.Invoke(model);
-            return new RecurringBuilder<Monthly>(model, _clock, _startDate, _startTime, _endTime, _timeZone, _endDate);
+            return new FrequencyBuilder<Monthly>(model, _clock, _startDate, _startTime, _endTime, _timeZone, _endDate);
         }
 
-        public RecurringBuilder<Yearly> Yearly(Action<Yearly>? configure = null)
+        public FrequencyBuilder<Yearly> Yearly(Action<Yearly>? configure = null)
         {
             var model = new Yearly();
             model.Initialize(_startDate);
             configure?.Invoke(model);
-            return new RecurringBuilder<Yearly>(model, _clock, _startDate, _startTime, _endTime, _timeZone, _endDate);
+            return new FrequencyBuilder<Yearly>(model, _clock, _startDate, _startTime, _endTime, _timeZone, _endDate);
         }
     }
 }

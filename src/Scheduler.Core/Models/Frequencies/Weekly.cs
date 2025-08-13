@@ -1,9 +1,9 @@
-namespace Scheduler.Core.Models.Schedules
+namespace Scheduler.Core.Models.Frequencies
 {
     using System.Collections.Generic;
     using System.Linq;
 
-    using Scheduler.Core.Models.Schedules.Base;
+    using Scheduler.Core.Models.Frequencies.Base;
 
     public class Weekly : Recurring
     {

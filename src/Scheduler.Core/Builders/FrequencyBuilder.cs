@@ -10,9 +10,9 @@
     using Scheduler.Core.Contexts;
     using Scheduler.Core.Contracts;
     using Scheduler.Core.Models;
-    using Scheduler.Core.Models.Schedules.Base;
+    using Scheduler.Core.Models.Frequencies.Base;
 
-    public class RecurringBuilder<TModel> where TModel : Frequency
+    public class FrequencyBuilder<TModel> where TModel : Frequency
     {
         private readonly TModel _model;
         private readonly IClock _clock;
@@ -22,7 +22,7 @@
         private readonly DateTimeZone _timeZone;
         private readonly LocalDate? _endDate;
 
-        internal RecurringBuilder(
+        internal FrequencyBuilder(
             TModel model,
             IClock clock,
             LocalDate startDate,
@@ -48,7 +48,7 @@
             _model.EndDate = _endDate;
             _model.TimeZone = _timeZone;
 
-            return new ScheduleContext<TModel>(_model, _clock);
+            return new Schedule<TModel>(_model, _clock);
         }
     }
 }

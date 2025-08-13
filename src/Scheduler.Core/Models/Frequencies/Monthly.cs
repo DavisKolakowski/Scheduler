@@ -1,33 +1,16 @@
-namespace Scheduler.Core.Models.Schedules
+namespace Scheduler.Core.Models.Frequencies
 {
     using System.Collections.Generic;
     using System.Linq;
-    using NodaTime;
     using Scheduler.Core.Enums;
-    using Scheduler.Core.Models.Schedules.Base;
+    using Scheduler.Core.Models.Frequencies.Base;
 
-    public class Yearly : Recurring
+    public class Monthly : Recurring
     {
-        private List<int> _months = new List<int>();
         private List<int> _daysOfMonth = new List<int>();
-
-        public IReadOnlyList<int> Months => _months;
         public IReadOnlyList<int> DaysOfMonth => _daysOfMonth;
-
         public Relative? Relative { get; private set; }
         public bool IsRelative => Relative.HasValue;
-
-        public void UseMonthsOfYear(System.Action<List<int>> configure)
-        {
-            var temp = new List<int>();
-            configure?.Invoke(temp);
-
-            _months = temp
-                .Where(m => m >= 1 && m <= 12)
-                .Distinct()
-                .OrderBy(m => m)
-                .ToList();
-        }
 
         public void UseDaysOfMonth(System.Action<List<int>> configure)
         {
@@ -49,15 +32,11 @@ namespace Scheduler.Core.Models.Schedules
             Relative = new Relative(index, position);
         }
 
-        internal void Initialize(LocalDate startDate)
+        internal void Initialize(int dayOfMonth)
         {
-            if (_months.Count == 0)
-            {
-                _months.Add(startDate.Month);
-            }
             if (_daysOfMonth.Count == 0)
             {
-                _daysOfMonth.Add(startDate.Day);
+                _daysOfMonth.Add(dayOfMonth);
             }
         }
     }

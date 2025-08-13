@@ -11,8 +11,8 @@
     using Scheduler.Core.Contracts;
     using Scheduler.Core.Enums;
     using Scheduler.Core.Models;
-    using Scheduler.Core.Models.Schedules;
-    using Scheduler.Core.Models.Schedules.Base;
+    using Scheduler.Core.Models.Frequencies;
+    using Scheduler.Core.Models.Frequencies.Base;
 
     public static class DescriptionGenerator
     {
