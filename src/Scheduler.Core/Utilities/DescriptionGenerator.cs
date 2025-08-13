@@ -67,7 +67,7 @@
         {
             if (model.IsRelative && model.Relative.HasValue)
             {
-                return $"on the {FormatRelativeOccurrence(model.Relative.Value)}";
+                return $"on the {FormatRelative(model.Relative.Value)}";
             }
             if (model.DaysOfMonth.Any())
             {
@@ -86,7 +86,7 @@
 
             if (model.IsRelative && model.Relative.HasValue)
             {
-                sb.Append($"on the {FormatRelativeOccurrence(model.Relative.Value)}");
+                sb.Append($"on the {FormatRelative(model.Relative.Value)}");
             }
             else if (model.DaysOfMonth.Any())
             {
@@ -111,7 +111,7 @@
         private static string FormatDayOfWeekList(IReadOnlyList<int> days) => ToFormattedString(days.OrderBy(d => d).Select(d => ((IsoDayOfWeek)d).ToString()).ToList());
         private static string FormatMonthList(IReadOnlyList<int> months) => ToFormattedString(months.OrderBy(m => m).Select(m => CultureInfo.InvariantCulture.DateTimeFormat.GetMonthName(m)).ToList());
         private static string FormatDayOfMonthList(IReadOnlyList<int> days) => ToFormattedString(days.OrderBy(d => d).Select(GetOrdinal).ToList());
-        private static string FormatRelativeOccurrence(RelativeOccurrence occurrence)
+        private static string FormatRelative(Relative occurrence)
         {
             var index = occurrence.Index.ToString().ToLower();
             var position = occurrence.Position.ToString();

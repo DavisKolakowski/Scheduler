@@ -9,7 +9,7 @@ namespace Scheduler.Core.Models.Schedules
     {
         private List<int> _daysOfMonth = new List<int>();
         public IReadOnlyList<int> DaysOfMonth => _daysOfMonth;
-        public RelativeOccurrence? Relative { get; private set; }
+        public Relative? Relative { get; private set; }
         public bool IsRelative => Relative.HasValue;
 
         public void UseDaysOfMonth(System.Action<List<int>> configure)
@@ -29,7 +29,7 @@ namespace Scheduler.Core.Models.Schedules
         public void UseRelative(RelativeIndex index, RelativePosition position)
         {
             _daysOfMonth.Clear();
-            Relative = new RelativeOccurrence(index, position);
+            Relative = new Relative(index, position);
         }
 
         internal void Initialize(int dayOfMonth)

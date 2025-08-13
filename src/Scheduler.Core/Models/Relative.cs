@@ -2,12 +2,12 @@
 {
     using Scheduler.Core.Enums;
 
-    public struct RelativeOccurrence
+    public struct Relative
     {
         public RelativeIndex Index { get; }
         public RelativePosition Position { get; }
 
-        public RelativeOccurrence(RelativeIndex index, RelativePosition position)
+        public Relative(RelativeIndex index, RelativePosition position)
         {
             Index = index;
             Position = position;

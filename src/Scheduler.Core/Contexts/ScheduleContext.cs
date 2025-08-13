@@ -289,7 +289,7 @@ namespace Scheduler.Core.Contexts
             }
         }
 
-        private LocalDate? FindRelativeDateInMonth(int year, int month, RelativeOccurrence relative)
+        private LocalDate? FindRelativeDateInMonth(int year, int month, Relative relative)
         {
             var firstDayOfMonth = new LocalDate(year, month, 1);
             var lastDayOfMonth = firstDayOfMonth.PlusMonths(1).PlusDays(-1);
