@@ -18,15 +18,21 @@
     {
         public static string Generate(Frequency model)
         {
-            return model switch
+            switch (model)
             {
-                OneTime o => GenerateOneTimeDescription(o),
-                Daily o => GenerateRecurringDescription(o, "day", _ => null),
-                Weekly o => GenerateRecurringDescription(o, "week", FormatWeeklyDetails),
-                Monthly o => GenerateRecurringDescription(o, "month", FormatMonthlyDetails),
-                Yearly o => GenerateRecurringDescription(o, "year", FormatYearlyDetails),
-                _ => $"A schedule of an unknown type starting on {model.StartDate}."
-            };
+                case OneTime o:
+                    return GenerateOneTimeDescription(o);
+                case Daily o:
+                    return GenerateRecurringDescription(o, "day", _ => null);
+                case Weekly o:
+                    return GenerateRecurringDescription(o, "week", FormatWeeklyDetails);
+                case Monthly o:
+                    return GenerateRecurringDescription(o, "month", FormatMonthlyDetails);
+                case Yearly o:
+                    return GenerateRecurringDescription(o, "year", FormatYearlyDetails);
+                default:
+                    return $"A schedule of an unknown type starting on {model.StartDate}.";
+            }
         }
 
         private static string GenerateOneTimeDescription(OneTime model)
@@ -130,23 +136,24 @@
             {
                 return num.ToString();
             }
-            switch (num % 100) 
-            { 
-                case 11: 
-                case 12: 
-                case 13: 
-                    return num + "th"; 
+            switch (num % 100)
+            {
+                case 11:
+                case 12:
+                case 13:
+                    return num + "th";
             }
-            switch (num % 10) 
-            { 
-                case 1: 
-                    return num + "st"; 
-                case 2: 
-                    return num + "nd"; 
-                case 3: 
-                    return num + "rd"; 
-                default: 
-                    return num + "th"; }
+            switch (num % 10)
+            {
+                case 1:
+                    return num + "st";
+                case 2:
+                    return num + "nd";
+                case 3:
+                    return num + "rd";
+                default:
+                    return num + "th";
+            }
         }
         private static string ToFormattedString(IReadOnlyList<string> items)
         {
