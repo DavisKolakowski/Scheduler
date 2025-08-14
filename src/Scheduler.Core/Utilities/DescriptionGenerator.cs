@@ -65,7 +65,10 @@
 
         private static string? FormatWeeklyDetails(Weekly model)
         {
-            if (model.DaysOfWeek.Count == 0) return null;
+            if (model.DaysOfWeek.Count == 0)
+            {
+                return null;
+            }
             return $"on {FormatDayOfWeekList(model.DaysOfWeek)}";
         }
 
