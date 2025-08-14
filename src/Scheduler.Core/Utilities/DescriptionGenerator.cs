@@ -117,15 +117,22 @@
             return $"{start.ToString("h:mm tt", culture).ToUpper()} - {end.ToString("h:mm tt", culture).ToUpper()}";
         }
 
-        private static string FormatDayOfWeekList(IReadOnlyList<int> days) => ToFormattedString(days.OrderBy(d => d).Select(d => ((IsoDayOfWeek)d).ToString()).ToList());
-        private static string FormatMonthList(IReadOnlyList<int> months) => ToFormattedString(months.OrderBy(m => m).Select(m => CultureInfo.InvariantCulture.DateTimeFormat.GetMonthName(m)).ToList());
-        private static string FormatDayOfMonthList(IReadOnlyList<int> days) => ToFormattedString(days.OrderBy(d => d).Select(GetOrdinal).ToList());
+        private static string FormatDayOfWeekList(IReadOnlyList<int> days) => 
+            ToFormattedString(days.OrderBy(d => d)
+                .Select(d => ((IsoDayOfWeek)d).ToString()).ToList());
+        private static string FormatMonthList(IReadOnlyList<int> months) => 
+            ToFormattedString(months.OrderBy(m => m)
+                .Select(m => CultureInfo.InvariantCulture.DateTimeFormat.GetMonthName(m)).ToList());
+        private static string FormatDayOfMonthList(IReadOnlyList<int> days) => 
+            ToFormattedString(days.OrderBy(d => d)
+                .Select(GetOrdinal).ToList());
         private static string FormatRelative(Relative occurrence)
         {
             var index = occurrence.Index.ToString().ToLower();
             var position = occurrence.Position.ToString();
 
-            var formattedPosition = string.Concat(position.Select(c => char.IsUpper(c) ? " " + c : c.ToString())).TrimStart().ToLower();
+            var formattedPosition = string.Concat(position.Select(c => char.IsUpper(c) ? " " + c : c.ToString()))
+                .TrimStart().ToLower();
 
             return $"{index} {formattedPosition}";
         }
