@@ -20,7 +20,7 @@
         {
             switch (model)
             {
-                case OneTime o:
+                case Once o:
                     return GenerateOneTimeDescription(o);
                 case Daily o:
                     return GenerateRecurringDescription(o, "day", _ => null);
@@ -35,7 +35,7 @@
             }
         }
 
-        private static string GenerateOneTimeDescription(OneTime model)
+        private static string GenerateOneTimeDescription(Once model)
         {
             return $"Occurs once on {FormatDateWithOrdinal(model.StartDate)} at {FormatTimeRange(model.StartTime, model.EndTime)}";
         }

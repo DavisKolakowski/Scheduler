@@ -29,7 +29,7 @@ public static class ScheduleDemos
     #region Demo Definitions
 
     // --- One-Time Schedules ---
-    private static ISchedule<OneTime> Demo1_OneTimeEvent()
+    private static ISchedule<Once> Demo1_OneTimeEvent()
     {
         var schedule = _context.CreateBuilder(
             new LocalDate(2024, 8, 20),
@@ -41,7 +41,7 @@ public static class ScheduleDemos
         return schedule;
     }
 
-    private static ISchedule<OneTime> Demo1a_OvernightOneTimeEvent()
+    private static ISchedule<Once> Demo1a_OvernightOneTimeEvent()
     {
         var schedule = _context.CreateBuilder(
             new LocalDate(2024, 8, 20),

@@ -120,7 +120,7 @@
         {
             if (!FirstOccurrence.HasValue) return null;
 
-            if (Model is OneTime)
+            if (Model is Once)
             {
                 var eventStart = FirstOccurrence.Value.ToInstant();
                 var eventEnd = eventStart.Plus(_duration);
@@ -141,7 +141,7 @@
 
         private ZonedDateTime? CalculateLastOccurrence()
         {
-            if (Model is OneTime)
+            if (Model is Once)
             {
                 return FirstOccurrence;
             }
@@ -172,7 +172,7 @@
 
             switch (Model)
             {
-                case OneTime o:
+                case Once o:
                     var oneTimeZdt = o.StartDate.At(o.StartTime).InZoneStrictly(zone);
                     if (ZonedDateTime.Comparer.Instant.Compare(oneTimeZdt, searchStart) >= 0 && 
                         ZonedDateTime.Comparer.Instant.Compare(oneTimeZdt, searchEnd) <= 0)
@@ -314,7 +314,7 @@
 
             switch (Model)
             {
-                case OneTime _:
+                case Once _:
                     return now.Plus(Duration.FromDays(1));
 
                 case Daily daily:
@@ -409,7 +409,7 @@
 
         private ZonedDateTime? CalculateExpiration()
         {
-            if (Model is OneTime)
+            if (Model is Once)
             {
                 if (Model.EndTime.CompareTo(Model.StartTime) <= 0)
                 {

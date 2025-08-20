@@ -26,11 +26,11 @@
             _timeZone = timeZone;
         }
 
-        public FrequencyBuilder<OneTime> OneTime()
+        public FrequencyBuilder<Once> OneTime()
         {
-            var model = new OneTime();
+            var model = new Once();
             LocalDate endDate = _endTime <= _startTime ? _startDate.PlusDays(1) : _startDate;
-            return new FrequencyBuilder<OneTime>(model, _clock, _startDate, _startTime, _endTime, _timeZone, endDate);
+            return new FrequencyBuilder<Once>(model, _clock, _startDate, _startTime, _endTime, _timeZone, endDate);
         }
 
         public FrequencyBuilder<Daily> Daily(Action<Daily>? configure = null)
